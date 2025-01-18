@@ -1,9 +1,12 @@
 import ProTable from '@ant-design/pro-table';
-import { mount } from 'enzyme';
-import React, { useState } from 'react';
-import { act } from 'react-dom/test-utils';
-import { waitForComponentToPaint } from '../util';
+import { cleanup, render, waitFor } from '@testing-library/react';
+import React, { act, useState } from 'react';
+import { waitForWaitTime } from '../util';
 import { getFetchData } from './demo';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('BasicTable Search', () => {
   const LINE_STR_COUNT = 20;
@@ -38,8 +41,8 @@ describe('BasicTable Search', () => {
   });
 
   it('🎏 filter test', async () => {
-    const fn = jest.fn();
-    const html = mount(
+    const fn = vi.fn();
+    const html = render(
       <ProTable
         size="small"
         columns={[
@@ -68,23 +71,20 @@ describe('BasicTable Search', () => {
         rowKey="key"
       />,
     );
-    await waitForComponentToPaint(html, 200);
+    await waitForWaitTime(200);
     act(() => {
-      html
-        .find('.ant-table-cell label.ant-checkbox-wrapper input')
-        .at(1)
-        .simulate('change', {
-          target: {
-            checked: true,
-          },
-        });
+      html.baseElement
+        .querySelectorAll<HTMLInputElement>(
+          '.ant-table-cell label.ant-checkbox-wrapper input',
+        )[1]
+        ?.click();
     });
-    await waitForComponentToPaint(html, 200);
+    await waitForWaitTime(200);
     expect(fn).toBeCalledTimes(1);
   });
 
   it('✔️ selected rows support row is function', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const DemoTable = () => {
       const columns = [
         {
@@ -112,7 +112,10 @@ describe('BasicTable Search', () => {
           id: '002',
         },
       ];
-      const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>(['001', '002']);
+      const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([
+        '001',
+        '002',
+      ]);
       return (
         <ProTable
           columns={columns}
@@ -124,6 +127,7 @@ describe('BasicTable Search', () => {
               setSelectedRowKeys(newSelectedRowKeys);
             },
           }}
+          tableAlertOptionRender={false}
           tableAlertRender={({ selectedRows }) => {
             const text = selectedRows.map((row) => row.name).join(',');
             fn(text);
@@ -132,10 +136,11 @@ describe('BasicTable Search', () => {
         />
       );
     };
-    const wrapper = mount(<DemoTable />);
 
-    await waitForComponentToPaint(wrapper, 2000);
+    render(<DemoTable />);
 
-    expect(fn).toBeCalledWith('张三,李四');
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith('张三,李四');
+    });
   });
 });

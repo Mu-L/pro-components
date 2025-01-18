@@ -1,7 +1,3 @@
-/**
- * title: 不同尺寸
- */
-
 import { CheckCard } from '@ant-design/pro-components';
 import { Radio } from 'antd';
 import { useState } from 'react';
@@ -17,7 +13,11 @@ export default () => {
           <Radio.Button value="small">Small</Radio.Button>
         </Radio.Group>
       </div>
-      <CheckCard title="Card title" description="This is the description" size={size} />
+      <CheckCard
+        title="Card title"
+        description="This is the description"
+        size={size}
+      />
     </>
   );
 };

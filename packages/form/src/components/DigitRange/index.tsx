@@ -8,27 +8,28 @@ export type Value = string | number | undefined;
 export type ValuePair = Value[];
 
 export type RangeInputNumberProps = Omit<
-  InputNumberProps,
+  InputNumberProps<number>,
   'value' | 'defaultValue' | 'onChange' | 'placeholder'
 > & {
   value?: ValuePair;
-  defaultValue?: ValuePair | undefined;
+  defaultValue?: ValuePair;
   onChange?: (value?: ValuePair) => void;
 };
 
-export type ProFormDigitRangeProps = ProFormFieldItemProps<RangeInputNumberProps> & {
-  separator?: string;
-  separatorWidth?: number;
-};
+export type ProFormDigitRangeProps =
+  ProFormFieldItemProps<RangeInputNumberProps> & {
+    separator?: string;
+    separatorWidth?: number;
+  };
 /**
  * 数字范围选择组件
  *
  * @param
  */
-const ProFormDigit: React.ForwardRefRenderFunction<any, ProFormDigitRangeProps> = (
-  { fieldProps, proFieldProps, ...rest },
-  ref,
-) => {
+const ProFormDigit: React.ForwardRefRenderFunction<
+  any,
+  ProFormDigitRangeProps
+> = ({ fieldProps, proFieldProps, ...rest }, ref) => {
   return (
     <ProFormField
       valueType="digitRange"

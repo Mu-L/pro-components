@@ -1,11 +1,15 @@
 import ProForm, { ProFormText } from '@ant-design/pro-form';
-import type { ActionType, EditableFormInstance, ProColumns } from '@ant-design/pro-table';
+import type {
+  ActionType,
+  EditableFormInstance,
+  ProColumns,
+} from '@ant-design/pro-table';
 import { EditableProTable } from '@ant-design/pro-table';
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { InputNumber } from 'antd';
-import React from 'react';
-import { waitForComponentToPaint } from '../util';
 import crypto from 'crypto';
+import React, { act } from 'react';
+import { waitForWaitTime } from '../util';
 
 type DataSourceType = {
   id: number | string;
@@ -16,7 +20,7 @@ type DataSourceType = {
   }[];
   state?: string;
   time?: {
-    created_at?: string;
+    created_at?: number;
   };
   children?: DataSourceType[];
 };
@@ -27,7 +31,7 @@ const defaultData: DataSourceType[] = [
     title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
     labels: [{ name: 'bug', color: 'error' }],
     time: {
-      created_at: '1590486176000',
+      created_at: 1590486176000,
     },
     state: 'processing',
   },
@@ -36,7 +40,7 @@ const defaultData: DataSourceType[] = [
     title: '🐛 [BUG]无法创建工程npm create umi',
     labels: [{ name: 'bug', color: 'error' }],
     time: {
-      created_at: '1590481162000',
+      created_at: 1590481162000,
     },
     state: 'closed',
   },
@@ -46,7 +50,7 @@ const defaultData: DataSourceType[] = [
     labels: [{ name: 'question', color: 'success' }],
     state: 'open',
     time: {
-      created_at: '1590479665000',
+      created_at: 1590479665000,
     },
     children: [
       {
@@ -55,7 +59,7 @@ const defaultData: DataSourceType[] = [
         labels: [{ name: 'question', color: 'success' }],
         state: 'closed',
         time: {
-          created_at: '1590479665000',
+          created_at: 1590479665000,
         },
         children: [
           {
@@ -64,7 +68,7 @@ const defaultData: DataSourceType[] = [
             labels: [{ name: 'question', color: 'success' }],
             state: 'closed',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
           },
         ],
@@ -88,7 +92,7 @@ const columns: ProColumns<DataSourceType>[] = [
       onChange: () => null,
     },
     ellipsis: true,
-    tip: '标题过长会自动收缩',
+    tooltip: '标题过长会自动收缩',
     formItemProps: {
       rules: [
         {
@@ -145,6 +149,10 @@ const columns: ProColumns<DataSourceType>[] = [
   },
 ];
 
+afterEach(() => {
+  cleanup();
+});
+
 describe('EditorProTable', () => {
   afterEach(() => {
     cleanup();
@@ -158,12 +166,12 @@ describe('EditorProTable', () => {
         value={defaultData}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
   it('📝 EditableProTable support pagination', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -185,21 +193,21 @@ describe('EditorProTable', () => {
         value={defaultData}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryByText('添加一行数据'))?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     wrapper.unmount();
   });
 
   it('📝 EditableProTable addEditRecord is null will throw Error', async () => {
-    const spy = jest.spyOn(global.console, 'warn').mockImplementation();
+    const spy = vi.spyOn(global.console, 'warn');
     const actionRef = React.createRef<ActionType>();
     const wrapper = render(
       <EditableProTable<DataSourceType>
@@ -213,14 +221,17 @@ describe('EditorProTable', () => {
         value={defaultData}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     try {
+      //@ts-ignore
       actionRef.current?.addEditRecord(undefined);
-    } catch (error: any) {
-      expect(error.message).toEqual('请设置 recordCreatorProps.record 并返回一个唯一的key');
+    } catch (error) {
+      expect((error as any).message).toEqual(
+        '请设置 recordCreatorProps.record 并返回一个唯一的key',
+      );
     }
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
     spy.mockRestore();
     wrapper.unmount();
   });
@@ -228,7 +239,8 @@ describe('EditorProTable', () => {
   it('📝 EditableProTable saveEditable should save and quit editing', async () => {
     const actionRef = React.createRef<ActionType>();
     let changedDataSource: DataSourceType[] = [];
-    const onChange = jest.fn((value) => {
+    vi.useFakeTimers();
+    const onChange = vi.fn((value) => {
       changedDataSource = value;
     });
     const wrapper = render(
@@ -237,6 +249,7 @@ describe('EditorProTable', () => {
           table: defaultData,
         }}
       >
+        <div>render</div>
         <EditableProTable<DataSourceType>
           rowKey="id"
           name="table"
@@ -246,22 +259,27 @@ describe('EditorProTable', () => {
         />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper, 1000);
 
-    expect(
-      wrapper.container.querySelector('.ant-table-tbody')?.querySelectorAll('tr.ant-table-row')
-        .length,
-    ).toBe(defaultData.length);
+    await wrapper.findByText('render');
+
+    await waitFor(() => {
+      expect(
+        wrapper.container
+          .querySelector('.ant-table-tbody')
+          ?.querySelectorAll('tr.ant-table-row').length,
+      ).toBe(defaultData.length);
+    });
 
     const editAndChange = async (inputValue: string) => {
       act(() => {
         wrapper.container.querySelector<HTMLButtonElement>('#editor')?.click();
       });
-      await waitForComponentToPaint(wrapper, 100);
 
       act(() => {
         fireEvent.change(
-          wrapper.container.querySelectorAll(`.ant-form-item-control-input input`)[1],
+          wrapper.container.querySelectorAll(
+            `.ant-form-item-control-input input`,
+          )[1],
           {
             target: {
               value: inputValue,
@@ -269,46 +287,77 @@ describe('EditorProTable', () => {
           },
         );
       });
-      await waitForComponentToPaint(wrapper, 100);
-    };
+      await act(() => vi.runOnlyPendingTimers());
 
+      await wrapper.findAllByDisplayValue(inputValue);
+    };
     await editAndChange('');
     // should block saving when there is validation error
-    await actionRef.current?.saveEditable(624748504);
+    await act(() => {
+      return actionRef.current?.saveEditable(624748504);
+    });
     // should exist validation error
-    expect(
-      wrapper.container
-        .querySelectorAll('.ant-table-tbody')[0]
-        .querySelectorAll('.ant-form-item-has-error').length,
-    ).toBeGreaterThan(0);
-    expect(
-      wrapper.container.querySelectorAll('.ant-table-tbody')[0].querySelectorAll('input').length,
-    ).toBe(4);
-    expect(onChange).not.toBeCalled();
 
-    await editAndChange('test value');
+    await act(() => vi.runOnlyPendingTimers());
+
+    await waitFor(() => {
+      expect(
+        wrapper.container
+          .querySelectorAll('.ant-table-tbody')[0]
+          .querySelectorAll('.ant-form-item-has-error').length,
+      ).toBeGreaterThan(0);
+    });
+    await waitFor(() => {
+      expect(
+        wrapper.container
+          .querySelectorAll('.ant-table-tbody')[0]
+          .querySelectorAll('input').length,
+      ).toBe(4);
+    });
+    await waitFor(() => {
+      expect(onChange).not.toBeCalled();
+    });
+    editAndChange('test value');
     // save with recordKey
-    await actionRef.current?.saveEditable(624748504);
-    await waitForComponentToPaint(wrapper, 1000);
 
-    expect(onChange).toBeCalled();
-    expect(changedDataSource).toHaveLength(defaultData.length);
-    expect(changedDataSource[0]?.title).toBe('test value');
+    await act(() => {
+      return actionRef.current?.saveEditable(624748504);
+    });
 
+    await act(() => vi.runOnlyPendingTimers());
+
+    await waitFor(() => {
+      expect(onChange).toBeCalled();
+    });
+    await waitFor(() => {
+      expect(changedDataSource).toHaveLength(defaultData.length);
+    });
+    await waitFor(() => {
+      expect(changedDataSource[0]?.title).toBe('test value');
+    });
     await editAndChange('test value2');
     // save with array index, if name is set
-    await actionRef.current?.saveEditable(0);
-    await waitForComponentToPaint(wrapper, 100);
+    await act(() => {
+      return actionRef.current?.saveEditable(0);
+    });
 
-    expect(onChange).toBeCalled();
-    expect(changedDataSource).toHaveLength(defaultData.length);
-    expect(changedDataSource[0]?.title).toBe('test value2');
+    await act(() => vi.runOnlyPendingTimers());
 
+    await waitFor(() => {
+      expect(onChange).toBeCalled();
+    });
+    await waitFor(() => {
+      expect(changedDataSource).toHaveLength(defaultData.length);
+    });
+    await waitFor(() => {
+      expect(changedDataSource[0]?.title).toBe('test value2');
+    });
+    vi.useRealTimers();
     wrapper.unmount();
   });
 
   it('📝 EditableProTable add support children column', async () => {
-    const onchange = jest.fn();
+    const onchange = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -335,7 +384,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -344,7 +393,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -352,21 +401,21 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryByText('添加一行数据'))?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(onchange).toBeCalledWith(2);
+    expect(onchange).toHaveBeenCalledWith(2);
 
     wrapper.unmount();
   });
 
   it('📝 EditableProTable add support nested children column', async () => {
-    const onchange = jest.fn();
+    const onchange = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -398,7 +447,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -407,7 +456,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -415,21 +464,21 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(onchange).toBeCalledWith(1);
+    expect(onchange).toHaveBeenCalledWith(1);
 
     wrapper.unmount();
   });
 
   it("📝 EditableProTable can't find record by parentKey", async () => {
-    const onchange = jest.fn();
+    const onchange = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -459,7 +508,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -468,7 +517,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -476,13 +525,13 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryByText('添加一行数据'))?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     expect(onchange).not.toBeCalled();
 
@@ -490,7 +539,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable add support parentKey when newRecordType = cache', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -510,13 +559,13 @@ describe('EditorProTable', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryByText('添加一行数据'))?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 2000);
+    await waitForWaitTime(1200);
 
     expect(fn).not.toBeCalled();
     act(() => {
@@ -532,7 +581,7 @@ describe('EditorProTable', () => {
       );
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     expect(
       wrapper.container
@@ -540,8 +589,9 @@ describe('EditorProTable', () => {
         .querySelectorAll('input'),
     ).toBeTruthy();
     expect(
-      wrapper.container.querySelector('.ant-table-tbody')?.querySelectorAll('tr.ant-table-row')
-        .length,
+      wrapper.container
+        .querySelector('.ant-table-tbody')
+        ?.querySelectorAll('tr.ant-table-row').length,
     ).toBe(6);
 
     act(() => {
@@ -551,11 +601,12 @@ describe('EditorProTable', () => {
         ?.click?.();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(wrapper.container.querySelectorAll('.ant-table-row.ant-table-row-level-1').length).toBe(
-      2,
-    );
+    expect(
+      wrapper.container.querySelectorAll('.ant-table-row.ant-table-row-level-1')
+        .length,
+    ).toBe(2);
 
     wrapper.unmount();
   });
@@ -569,8 +620,10 @@ describe('EditorProTable', () => {
         value={defaultData}
       />,
     );
-    await waitForComponentToPaint(wrapper, 100);
-    expect(wrapper.container.querySelectorAll('button.ant-btn-dashed').length).toBe(0);
+    await waitForWaitTime(100);
+    expect(
+      wrapper.container.querySelectorAll('button.ant-btn-dashed').length,
+    ).toBe(0);
 
     act(() => {
       wrapper.rerender(
@@ -583,9 +636,11 @@ describe('EditorProTable', () => {
       );
     });
 
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
 
-    expect(wrapper.container.querySelectorAll('button.ant-btn-dashed').length).toBe(1);
+    expect(
+      wrapper.container.querySelectorAll('button.ant-btn-dashed').length,
+    ).toBe(1);
   });
 
   it('📝 EditableProTable support editableFormRef', async () => {
@@ -601,21 +656,27 @@ describe('EditorProTable', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
 
     const firstRowKey = defaultData[0]?.id || 0;
 
-    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe(defaultData?.[0]?.title);
+    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe(
+      defaultData?.[0]?.title,
+    );
 
-    expect(editorRef.current?.getRowData?.(0)?.title).toBe(defaultData?.[0]?.title);
+    expect(editorRef.current?.getRowData?.(0)?.title).toBe(
+      defaultData?.[0]?.title,
+    );
 
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
 
     act(() => {
       editorRef.current?.setRowData?.(firstRowKey, { title: 'test-title' });
     });
 
-    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe('test-title');
+    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe(
+      'test-title',
+    );
 
     expect(editorRef.current?.getRowsData?.()?.length).toBe(3);
 
@@ -635,7 +696,7 @@ describe('EditorProTable', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
 
     try {
       //@ts-expect-error
@@ -676,15 +737,21 @@ describe('EditorProTable', () => {
 
     const firstRowKey = defaultData?.[0]?.id || 0;
 
-    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe(defaultData?.[0]?.title);
+    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe(
+      defaultData?.[0]?.title,
+    );
 
-    expect(editorRef.current?.getRowData?.(0)?.title).toBe(defaultData?.[0]?.title);
+    expect(editorRef.current?.getRowData?.(0)?.title).toBe(
+      defaultData?.[0]?.title,
+    );
 
     act(() => {
       editorRef.current?.setRowData?.(firstRowKey, { title: 'test-title' });
     });
 
-    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe('test-title');
+    expect(editorRef.current?.getRowData?.(firstRowKey)?.title).toBe(
+      'test-title',
+    );
 
     expect(editorRef.current?.getRowsData?.()?.length).toBe(3);
 
@@ -692,7 +759,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable add newLine use rowKey', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <ProForm
         initialValues={{
@@ -720,9 +787,9 @@ describe('EditorProTable', () => {
       (await wrapper.queryByText('添加一行数据'))?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 200);
+    await waitForWaitTime(200);
 
-    expect(fn).toBeCalledWith('1234');
+    expect(fn).toHaveBeenCalledWith('1234');
   });
 
   it('📝 EditableProTable add newLine when position=top', async () => {
@@ -752,7 +819,7 @@ describe('EditorProTable', () => {
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
-    await waitForComponentToPaint(wrapper, 200);
+    await waitForWaitTime(200);
 
     const firstLineValue = wrapper.container
       .querySelectorAll('.ant-table-tbody tr.ant-table-row')[0]
@@ -785,7 +852,7 @@ describe('EditorProTable', () => {
         value={defaultData}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1100);
+    await waitForWaitTime(1200);
     expect(wrapper.container.querySelector('div#test')?.textContent).toBe('xx');
   });
 
@@ -801,12 +868,12 @@ describe('EditorProTable', () => {
         value={defaultData}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1100);
+    await waitForWaitTime(1200);
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
   it('📝 EditableProTable support controlled', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey={(row) => row.id}
@@ -825,7 +892,7 @@ describe('EditorProTable', () => {
             title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
             labels: [{ name: 'bug', color: 'error' }],
             time: {
-              created_at: '1590486176000',
+              created_at: 1590486176000,
             },
             state: 'processing',
           },
@@ -833,10 +900,11 @@ describe('EditorProTable', () => {
         onChange={onChange}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1100);
+    await waitForWaitTime(1200);
     expect(
-      wrapper.container.querySelectorAll<HTMLInputElement>('.ant-form-item-control-input input')[1]
-        .value,
+      wrapper.container.querySelectorAll<HTMLInputElement>(
+        '.ant-form-item-control-input input',
+      )[1].value,
     ).toBe('🐛 [BUG]yarn install命令 antd2.4.5会报错');
 
     act(() => {
@@ -858,7 +926,7 @@ describe('EditorProTable', () => {
               title: '🐛 [BUG]无法创建工程npm create umi',
               labels: [{ name: 'bug', color: 'error' }],
               time: {
-                created_at: '1590486176000',
+                created_at: 1590486176000,
               },
               state: 'processing',
             },
@@ -868,15 +936,16 @@ describe('EditorProTable', () => {
       );
     });
 
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
     expect(
-      wrapper.container.querySelectorAll<HTMLInputElement>('.ant-form-item-control-input input')[1]
-        .value,
+      wrapper.container.querySelectorAll<HTMLInputElement>(
+        '.ant-form-item-control-input input',
+      )[1].value,
     ).toBe('🐛 [BUG]无法创建工程npm create umi');
   });
 
   it('📝 EditableProTable support nested children column without config "childrenColumnName:children" and "position:top"', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -902,7 +971,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -911,7 +980,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -919,21 +988,21 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     wrapper.unmount();
   });
 
   it('📝 EditableProTable add new child line when position = top', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -963,7 +1032,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -972,7 +1041,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -980,15 +1049,15 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     const { dataset } = wrapper.container.querySelectorAll(
       '.ant-table-tbody tr.ant-table-row',
@@ -1000,7 +1069,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable add new child line when position <> top', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -1029,7 +1098,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -1038,7 +1107,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -1046,15 +1115,15 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     const { dataset } = wrapper.container.querySelectorAll(
       '.ant-table-tbody tr.ant-table-row',
@@ -1066,7 +1135,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable onValuesChange will not trigger when init', async () => {
-    const valuesChangeFn = jest.fn();
+    const valuesChangeFn = vi.fn();
     const wrapper = render(
       <ProForm<{
         table: DataSourceType[];
@@ -1095,13 +1164,13 @@ describe('EditorProTable', () => {
       </ProForm>,
     );
 
-    await waitForComponentToPaint(wrapper, 300);
+    await waitForWaitTime(300);
     expect(valuesChangeFn).toBeCalledTimes(0);
 
     await act(async () => {
       (await wrapper.queryAllByText('编辑')).at(0)?.click();
     });
-    await waitForComponentToPaint(wrapper, 500);
+    await waitForWaitTime(1200);
     act(() => {
       fireEvent.change(
         wrapper.container
@@ -1115,11 +1184,11 @@ describe('EditorProTable', () => {
       );
     });
     expect(valuesChangeFn).toBeCalledTimes(1);
-    expect(valuesChangeFn).toBeCalledWith('test');
+    expect(valuesChangeFn).toHaveBeenCalledWith('test');
   });
 
   it('📝 EditableProTable add new child line when position is top and tree level > 1 and parent has children', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -1143,7 +1212,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -1152,7 +1221,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
                 children: [
                   {
@@ -1161,7 +1230,7 @@ describe('EditorProTable', () => {
                     labels: [{ name: 'question', color: 'success' }],
                     state: 'closed',
                     time: {
-                      created_at: '1590479665000',
+                      created_at: 1590479665000,
                     },
                   },
                 ],
@@ -1171,15 +1240,15 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     const { dataset } = wrapper.container.querySelectorAll(
       '.ant-table-tbody tr.ant-table-row',
@@ -1190,7 +1259,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable add new child line when position is top and tree level > 1 and parent has no children', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -1214,7 +1283,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -1223,7 +1292,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -1231,15 +1300,15 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     const { dataset } = wrapper.container.querySelectorAll(
       '.ant-table-tbody tr.ant-table-row',
@@ -1250,7 +1319,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable add new child line when position <> top and tree level > 1 and parent has children', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -1273,7 +1342,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -1282,7 +1351,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
                 children: [
                   {
@@ -1291,7 +1360,7 @@ describe('EditorProTable', () => {
                     labels: [{ name: 'question', color: 'success' }],
                     state: 'closed',
                     time: {
-                      created_at: '1590479665000',
+                      created_at: 1590479665000,
                     },
                   },
                 ],
@@ -1301,15 +1370,15 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     const { dataset } = wrapper.container.querySelectorAll(
       '.ant-table-tbody tr.ant-table-row',
@@ -1320,7 +1389,7 @@ describe('EditorProTable', () => {
   });
 
   it('📝 EditableProTable add new child line when position <> top and tree level > 1 and parent has no children', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <EditableProTable<DataSourceType>
         rowKey="id"
@@ -1343,7 +1412,7 @@ describe('EditorProTable', () => {
             labels: [{ name: 'question', color: 'success' }],
             state: 'open',
             time: {
-              created_at: '1590479665000',
+              created_at: 1590479665000,
             },
             children: [
               {
@@ -1352,7 +1421,7 @@ describe('EditorProTable', () => {
                 labels: [{ name: 'question', color: 'success' }],
                 state: 'closed',
                 time: {
-                  created_at: '1590479665000',
+                  created_at: 1590479665000,
                 },
               },
             ],
@@ -1360,15 +1429,15 @@ describe('EditorProTable', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
     await act(async () => {
       (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
     });
 
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(fn).toBeCalledWith(555);
+    expect(fn).toHaveBeenCalledWith(555);
 
     const { dataset } = wrapper.container.querySelectorAll(
       '.ant-table-tbody tr.ant-table-row',
@@ -1385,10 +1454,10 @@ describe('EditorProTable', () => {
       labels: [{ name: 'question', color: 'success' }],
       state: 'open',
       time: {
-        created_at: '1590479665000',
+        created_at: 1590479665000,
       },
     };
-    const fn = jest.fn();
+    const fn = vi.fn();
     const testFn = async () => {
       const depth = crypto.randomInt(2, 10);
       const topOrBottom = crypto.randomInt(100) > 50 ? 'top' : 'bottom';
@@ -1402,7 +1471,9 @@ describe('EditorProTable', () => {
         parent = child;
       }
       if (hasChildren) {
-        const child = Object.assign({}, nodeTpl, { id: `${parent.id}-placeholder` });
+        const child = Object.assign({}, nodeTpl, {
+          id: `${parent.id}-placeholder`,
+        });
         parent.children = [child];
       }
       const recordId = `${parent.id}-${depth}`;
@@ -1430,14 +1501,16 @@ describe('EditorProTable', () => {
           value={[node]}
         />,
       );
-      await waitForComponentToPaint(wrapper, 1000);
+      await waitForWaitTime(1000);
       await act(async () => {
         (await wrapper.queryAllByText('添加一行数据')).at(0)?.click();
       });
-      await waitForComponentToPaint(wrapper, 1000);
+      await waitForWaitTime(1000);
 
-      expect(fn).toBeCalledWith(recordId);
-      const trDoms = wrapper.container.querySelectorAll('.ant-table-tbody tr.ant-table-row');
+      expect(fn).toHaveBeenCalledWith(recordId);
+      const trDoms = wrapper.container.querySelectorAll(
+        '.ant-table-tbody tr.ant-table-row',
+      );
       expect(trDoms.length).toBe((hasChildren ? depth + 1 : depth) + 1);
       const index = topOrBottom !== 'top' && hasChildren ? depth + 1 : depth;
       const { dataset } = trDoms[index] as HTMLElement;

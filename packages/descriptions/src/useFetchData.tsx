@@ -9,7 +9,7 @@ export type RequestData<T = any> = {
 export type UseFetchDataAction<T extends RequestData> = {
   dataSource: T['data'] | T;
   setDataSource: (value: T['data'] | T) => void;
-  loading: boolean | undefined;
+  loading?: boolean;
   reload: () => Promise<void>;
 };
 
@@ -26,16 +26,25 @@ const useFetchData = <T extends RequestData>(
     onDataSourceChange?: (value: T['data']) => void;
   },
 ): UseFetchDataAction<T> => {
-  const { onRequestError, effects, manual, dataSource, defaultDataSource, onDataSourceChange } =
-    options || {};
+  const {
+    onRequestError,
+    effects,
+    manual,
+    dataSource,
+    defaultDataSource,
+    onDataSourceChange,
+  } = options || {};
   const [entity, setEntity] = useMergedState<T['data']>(defaultDataSource, {
     value: dataSource,
     onChange: onDataSourceChange,
   });
-  const [loading, setLoading] = useMergedState<boolean | undefined>(options?.loading, {
-    value: options?.loading,
-    onChange: options?.onLoadingChange,
-  });
+  const [loading, setLoading] = useMergedState<boolean | undefined>(
+    options?.loading,
+    {
+      value: options?.loading,
+      onChange: options?.onLoadingChange,
+    },
+  );
 
   const updateDataAndLoading = (data: T) => {
     setEntity(data);
@@ -58,6 +67,8 @@ const useFetchData = <T extends RequestData>(
       if (onRequestError === undefined) throw new Error(e as string);
       else onRequestError(e as Error);
       setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,7 +84,9 @@ const useFetchData = <T extends RequestData>(
     dataSource: entity,
     setDataSource: setEntity,
     loading,
-    reload: () => fetchList(),
+    reload: () => {
+      return fetchList();
+    },
   };
 };
 

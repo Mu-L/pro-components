@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface GlobalHeaderToken extends ProAliasToken {
@@ -24,13 +24,12 @@ const genGlobalHeaderStyle: GenerateStyle<GlobalHeaderToken> = (token) => {
       },
       '&-collapsed-button': {
         minHeight: '22px',
-        color: token?.layout?.header?.colorHeaderTitle,
-        fontSize: '22px',
-        marginInlineStart: '16px',
+        color: token.layout?.header?.colorHeaderTitle,
+        fontSize: '18px',
+        marginInlineEnd: '16px',
       },
       '&-logo': {
         position: 'relative',
-        minWidth: '154px',
         marginInlineEnd: '16px',
         a: {
           display: 'flex',
@@ -46,7 +45,8 @@ const genGlobalHeaderStyle: GenerateStyle<GlobalHeaderToken> = (token) => {
           marginInline: 0,
           marginInlineStart: 8,
           fontWeight: '600',
-          color: token.colorTextHeading,
+          color:
+            token.layout?.header?.colorHeaderTitle || token.colorTextHeading,
           fontSize: '18px',
           lineHeight: '32px',
         },

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "target": "esnext",
+    "module": "ESNext",
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "esModuleInterop": true,
@@ -9,11 +10,14 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
-    "suppressImplicitAnyIndexErrors": true,
+
     "declaration": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["vitest/globals"],
     "paths": {
-      "@ant-design/pro-layout": ["./packages/layout/src/index.tsx"],
+      "@@/*": [".dumi/tmp/*"],
+      "@ant-design/pro-layout": ["../../packages/layout/src/index.tsx"],
       "@ant-design/pro-form": ["./packages/form/src/index.tsx"],
       "@ant-design/pro-table": ["./packages/table/src/index.tsx"],
       "@ant-design/pro-field": ["./packages/field/src/index.tsx"],
@@ -27,6 +31,9 @@
     }
   },
   "include": [
+    "./tests/setupTests.ts",
+    "vitest.config.ts",
+    ".dumirc.ts",
     "typings.d.ts",
     "**/src/**/*",
     "**/docs/**/*",
@@ -34,10 +41,8 @@
     "**/demos",
     ".eslintrc.js",
     "tests",
-    "jest.config.js",
     "**/fixtures",
     "./tests/no-duplicated.ts",
     "packages/descriptions/src/demos/.tsx"
-  ],
-  "plugins": [{ "transform": "typescript-transform-paths", "afterDeclarations": true }]
+  ]
 }

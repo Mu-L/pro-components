@@ -49,7 +49,7 @@ const tableListDataSource: TableListItem[] = [];
 for (let i = 0; i < 2; i += 1) {
   tableListDataSource.push({
     key: i,
-    status: valueEnumMap[Math.floor(Math.random() * 10) % 3],
+    status: valueEnumMap[((Math.floor(Math.random() * 10) % 3) + '') as '0'],
     cascader: ['fe', 'js'],
     treeSelect: ['fe', 'js'],
   });
@@ -127,6 +127,23 @@ const columns: ProColumns<TableListItem>[] = [
       treeNodeFilterProp: 'field',
     },
     valueType: 'treeSelect',
+  },
+  {
+    title: '时间范围',
+    key: 'dateTimeRange',
+    dataIndex: 'dateTimeRange',
+    hideInTable: true,
+    valueType: 'dateTimeRange',
+    fieldProps: {
+      // placeholder: []
+    },
+    renderFormItem: (_, { type, defaultRender }) => {
+      if (type === 'form') {
+        return null;
+      }
+
+      return defaultRender(_);
+    },
   },
   {
     title: '操作',

@@ -15,7 +15,6 @@ _roadhog-api-doc
 .DS_Store
 npm-debug.log*
 yarn-error.log
-
 /coverage
 .idea
 package-lock.json
@@ -40,3 +39,6 @@ screenshot
 .changelogs
 .changelog.md
 packages/components/src/version.ts
+.dumi/tmp
+.dumi/tmp-production
+server

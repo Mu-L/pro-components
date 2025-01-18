@@ -1,4 +1,8 @@
-import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  EllipsisOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { ProCard } from '@ant-design/pro-components';
 import { Space } from 'antd';
 
@@ -8,6 +12,7 @@ export default () => {
       <ProCard
         title="Actions 操作项"
         style={{ maxWidth: 300 }}
+        bordered
         actions={[
           <SettingOutlined key="setting" />,
           <EditOutlined key="edit" />,
@@ -22,6 +27,7 @@ export default () => {
       <ProCard
         title="单独的 Actions 操作项"
         style={{ maxWidth: 300 }}
+        bordered
         actions={
           <div
             style={{
@@ -29,6 +35,8 @@ export default () => {
               alignItems: 'center',
               justifyContent: 'center',
               padding: 12,
+              flex: 1,
+              gap: 8,
             }}
           >
             <SettingOutlined key="setting" />
@@ -41,7 +49,7 @@ export default () => {
         <div>Card content</div>
       </ProCard>
 
-      <ProCard title="无 Actions 操作项" style={{ maxWidth: 300 }}>
+      <ProCard bordered title="无 Actions 操作项" style={{ maxWidth: 300 }}>
         <div>Card content</div>
         <div>Card content</div>
         <div>Card content</div>

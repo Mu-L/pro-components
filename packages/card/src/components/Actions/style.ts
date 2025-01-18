@@ -1,9 +1,5 @@
-import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
-import { ConfigProvider } from 'antd';
-import { useContext } from 'react';
-
-const { ConfigContext } = ConfigProvider;
 
 interface ProCardActionsToken extends ProAliasToken {
   antCls: string;
@@ -21,24 +17,31 @@ const genActionsStyle: GenerateStyle<ProCardActionsToken> = (token) => {
       paddingBlock: 0,
       paddingInline: 0,
       listStyle: 'none',
+      display: 'flex',
+      gap: token.marginXS,
       background: token.colorBgContainer,
       borderBlockStart: `${token.lineWidth}px ${token.lineType} ${token.colorSplit}`,
-
-      [`${antCls}-space`]: {
-        gap: '0 !important',
-        width: '100%',
-      },
-
-      [`& > li,
-        ${antCls}-space-item`]: {
+      minHeight: 42,
+      [`& > *`]: {
+        alignItems: 'center',
+        justifyContent: 'center',
         flex: 1,
-        float: 'left',
+        display: 'flex',
+        cursor: 'pointer',
+        color: token.colorTextSecondary,
+        transition: 'color 0.3s',
+        '&:hover': {
+          color: token.colorPrimaryHover,
+        },
+      },
+      [`& > li > div`]: {
+        flex: 1,
+        width: '100%',
         marginBlock: token.marginSM,
         marginInline: 0,
         color: token.colorTextSecondary,
         textAlign: 'center',
-
-        '> a': {
+        a: {
           color: token.colorTextSecondary,
           transition: 'color 0.3s',
           '&:hover': {
@@ -46,7 +49,7 @@ const genActionsStyle: GenerateStyle<ProCardActionsToken> = (token) => {
           },
         },
 
-        '> span': {
+        div: {
           position: 'relative',
           display: 'block',
           minWidth: 32,
@@ -72,7 +75,7 @@ const genActionsStyle: GenerateStyle<ProCardActionsToken> = (token) => {
             },
           },
 
-          '> .anticon': {
+          '.anticon': {
             fontSize: token.cardActionIconSize,
             lineHeight: '22px',
           },
@@ -87,14 +90,10 @@ const genActionsStyle: GenerateStyle<ProCardActionsToken> = (token) => {
 };
 
 export default function useStyle(prefixCls?: string) {
-  const { getPrefixCls } = useContext(ConfigContext);
-  const antCls = `.${getPrefixCls()}`;
-
   return useAntdStyle('ProCardActions', (token) => {
     const proCardActionsToken: ProCardActionsToken = {
       ...token,
       componentCls: `.${prefixCls}`,
-      antCls,
       cardActionIconSize: 16,
     };
 

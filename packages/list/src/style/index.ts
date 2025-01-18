@@ -1,9 +1,16 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import { Keyframes } from '@ant-design/cssinjs';
+import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProListToken extends ProAliasToken {
   componentCls: string;
 }
+
+export const techUiListActive = new Keyframes('techUiListActive', {
+  '0%': { backgroundColor: 'unset' },
+  '30%': { background: '#fefbe6' },
+  '100%': { backgroundColor: 'unset' },
+}) as any;
 
 const genProListStyle: GenerateStyle<ProListToken> = (token) => {
   return {
@@ -59,6 +66,9 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
               '&-avatar,&-description,&-title': {
                 paddingBlock: 6,
                 paddingInline: 0,
+                '&-editable': {
+                  paddingBlock: 0,
+                },
               },
             },
             '&-action': {
@@ -73,7 +83,7 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           },
         },
         [`&${token.componentCls}-row-type-new`]: {
-          animationName: 'techUiListActive',
+          animationName: techUiListActive,
           animationDuration: '3s',
         },
         [`&${token.componentCls}-row-type-inline`]: {
@@ -82,7 +92,8 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           },
         },
         [`&${token.componentCls}-row-type-top`]: {
-          backgroundImage: "url('https://gw.alipayobjects.com/zos/antfincdn/DehQfMbOJb/icon.svg')",
+          backgroundImage:
+            "url('https://gw.alipayobjects.com/zos/antfincdn/DehQfMbOJb/icon.svg')",
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'left top',
           backgroundSize: '12px 12px',
@@ -91,12 +102,7 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           [`${token.antCls}-list-item-action,
             ${token.proComponentsCls}-card-extra,
             ${token.proComponentsCls}-card-actions`]: {
-            display: 'none',
-          },
-          '&:hover': {
-            [`${token.proComponentsCls}-card-extra,${token.proComponentsCls}-card-actions`]: {
-              display: 'flex',
-            },
+            display: 'flex',
           },
         },
         '&-show-extra-hover': {
@@ -129,6 +135,11 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         },
         '&-expand-icon': {
           marginInlineEnd: 8,
+          display: 'flex',
+          fontSize: 12,
+          cursor: 'pointer',
+          height: '24px',
+          marginRight: 4,
           color: token.colorTextSecondary,
           '> .anticon > svg': {
             transition: '0.3s',
@@ -143,6 +154,9 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           marginInlineEnd: '16px',
           wordBreak: 'break-all',
           cursor: 'pointer',
+          '&-editable': {
+            paddingBlock: 8,
+          },
           '&:hover': {
             color: token.colorPrimary,
           },
@@ -155,7 +169,12 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           marginBlock: 0,
           marginInline: 32,
         },
-        '&-subTitle': { color: 'rgba(0, 0, 0, 0.45)' },
+        '&-subTitle': {
+          color: 'rgba(0, 0, 0, 0.45)',
+          '&-editable': {
+            paddingBlock: 8,
+          },
+        },
         '&-description': { marginBlockStart: '4px', wordBreak: 'break-all' },
         '&-avatar': { display: 'flex' },
         '&-header': {
@@ -167,12 +186,18 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
             padding: 0,
           },
         },
-        '&-header-title': { display: 'flex', alignItems: 'center', justifyContent: 'flex-start' },
+        '&-header-container': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+        },
         '&-header-option': { display: 'flex' },
         '&-checkbox': { width: '16px', marginInlineEnd: '12px' },
         '&-no-split': {
           [`${token.componentCls}-row`]: { borderBlockEnd: 'none' },
-          [`${token.antCls}-list ${token.antCls}-list-item`]: { borderBlockEnd: 'none' },
+          [`${token.antCls}-list ${token.antCls}-list-item`]: {
+            borderBlockEnd: 'none',
+          },
         },
         '&-bordered': {
           [`${token.componentCls}-toolbar`]: {
@@ -210,30 +235,36 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         },
 
         [`${token.antCls}-list-pagination`]: {
-          marginBlockEnd: token.marginLG,
+          marginBlockStart: token.margin,
+          marginBlockEnd: token.margin,
         },
         [`${token.antCls}-list-list`]: {
           '&-item': { cursor: 'pointer', paddingBlock: 12, paddingInline: 12 },
         },
-        [`${token.antCls}-list-vertical .${token.proComponentsCls}-list-row ${token.antCls}-list`]:
-          {
-            '&-header': { paddingBlock: 0, paddingInline: 0, borderBlockEnd: 'none' },
-            [`${token.antCls}-list-item`]: {
-              width: '100%',
-              paddingBlock: 12,
-              paddingInlineStart: 24,
-              paddingInlineEnd: 18,
-              '&-meta-avatar': { display: 'flex', alignItems: 'center', marginInlineEnd: 8 },
-              '&-action-split': {
-                display: 'none',
-              },
-              '&-meta-title': { marginBlock: 0, marginInline: 0 },
+        [`${token.antCls}-list-vertical ${token.proComponentsCls}-list-row`]: {
+          '&-header': {
+            paddingBlock: 0,
+            paddingInline: 0,
+            borderBlockEnd: 'none',
+          },
+          [`${token.antCls}-list-item`]: {
+            width: '100%',
+            paddingBlock: 12,
+            paddingInlineStart: 24,
+            paddingInlineEnd: 18,
+            [`${token.antCls}-list-item-meta-avatar`]: {
+              display: 'flex',
+              alignItems: 'center',
+              marginInlineEnd: 8,
+            },
+            [`${token.antCls}-list-item-action-split`]: {
+              display: 'none',
+            },
+            [`${token.antCls}-list-item-meta-title`]: {
+              marginBlock: 0,
+              marginInline: 0,
             },
           },
-        '@keyframes techUiListActive': {
-          '0%': { backgroundColor: 'unset' },
-          '30%': { background: '#fefbe6' },
-          '100%': { backgroundColor: 'unset' },
         },
       },
     },

@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface SettingDrawerToken extends ProAliasToken {
@@ -28,9 +28,13 @@ const genSettingDrawerStyle: GenerateStyle<SettingDrawerToken> = (token) => {
       pointerEvents: 'auto',
     },
     [token.componentCls]: {
-      '&-content': { position: 'relative', minHeight: '100%', color: token.colorText },
+      '&-content': {
+        position: 'relative',
+        minHeight: '100%',
+        color: token.colorText,
+      },
       '&-body-title': {
-        marginBlockEnd: '12px',
+        marginBlock: token.marginXS,
         fontSize: '14px',
         lineHeight: '22px',
         color: token.colorTextHeading,
@@ -38,14 +42,14 @@ const genSettingDrawerStyle: GenerateStyle<SettingDrawerToken> = (token) => {
       '&-block-checkbox': {
         display: 'flex',
         minHeight: 42,
+        gap: token.marginSM,
         '& &-item': {
           position: 'relative',
           width: '44px',
           height: '36px',
-          marginInlineEnd: '16px',
           overflow: 'hidden',
           borderRadius: '4px',
-          boxShadow: '0 1px 2.5px 0 rgba(0, 0, 0, 0.18)',
+          boxShadow: token.boxShadow,
           cursor: 'pointer',
           fontSize: 56,
           lineHeight: '56px',
@@ -67,27 +71,27 @@ const genSettingDrawerStyle: GenerateStyle<SettingDrawerToken> = (token) => {
           },
           '&-realDark': {
             backgroundColor: 'rgba(0, 21, 41, 0.85)',
-            '&::before': { backgroundColor: token.colorTextSecondary },
-            '&::after': { backgroundColor: token.colorText },
+            '&::before': { backgroundColor: 'rgba(0, 0, 0, 0.65)' },
+            '&::after': { backgroundColor: 'rgba(0, 0, 0, 0.85)' },
           },
           '&-light': {
-            backgroundColor: token.colorBgContainer,
-            '&::before': { backgroundColor: token.colorBgContainer },
-            '&::after': { backgroundColor: token.colorBgContainer },
+            backgroundColor: '#fff',
+            '&::before': { backgroundColor: '#fff' },
+            '&::after': { backgroundColor: '#fff' },
           },
 
           '&-dark,&-side': {
-            backgroundColor: '#f7f8fa',
+            backgroundColor: token.colorBgElevated,
             '&::before': { zIndex: '1', backgroundColor: '#001529' },
             '&::after': { backgroundColor: token.colorBgContainer },
           },
           '&-top': {
-            backgroundColor: '#f7f8fa',
+            backgroundColor: token.colorBgElevated,
             '&::before': { backgroundColor: 'transparent' },
             '&::after': { backgroundColor: '#001529' },
           },
           '&-mix': {
-            backgroundColor: '#f7f8fa',
+            backgroundColor: token.colorBgElevated,
             '&::before': { backgroundColor: token.colorBgContainer },
             '&::after': { backgroundColor: '#001529' },
           },
@@ -121,6 +125,12 @@ const genSettingDrawerStyle: GenerateStyle<SettingDrawerToken> = (token) => {
           textAlign: 'center',
           borderRadius: '2px',
           cursor: 'pointer',
+        },
+      },
+      '&-list': {
+        [`li${token.antCls}-list-item`]: {
+          paddingInline: 0,
+          paddingBlock: 8,
         },
       },
     },

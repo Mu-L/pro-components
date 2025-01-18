@@ -1,9 +1,13 @@
-﻿import type { GenerateStyle } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle } from '@ant-design/pro-provider';
 import { resetComponent } from '@ant-design/pro-utils';
 import type { AppsLogoComponentsToken } from './index';
-const genAppsLogoComponentsDefaultListStyle: GenerateStyle<AppsLogoComponentsToken> = (token) => {
+const genAppsLogoComponentsDefaultListStyle: GenerateStyle<
+  AppsLogoComponentsToken
+> = (token) => {
   return {
     '&-content': {
+      maxHeight: 'calc(100vh - 48px)',
+      overflow: 'auto',
       '&-list': {
         boxSizing: 'content-box',
         maxWidth: 656,
@@ -12,7 +16,6 @@ const genAppsLogoComponentsDefaultListStyle: GenerateStyle<AppsLogoComponentsTok
         paddingBlock: 0,
         paddingInline: 0,
         listStyle: 'none',
-        '> *': { boxSizing: 'border-box', fontFamily: token.fontFamily },
         '&-item': {
           position: 'relative',
           display: 'inline-block',
@@ -24,10 +27,24 @@ const genAppsLogoComponentsDefaultListStyle: GenerateStyle<AppsLogoComponentsTok
           listStyleType: 'none',
           transition: 'transform 0.2s cubic-bezier(0.333, 0, 0, 1)',
           borderRadius: token.borderRadius,
-          '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.03)',
+          '&-group': {
+            marginBottom: 16,
+            '&-title': {
+              margin: '16px 0 8px 12px',
+              fontWeight: 600,
+              color: 'rgba(0, 0, 0, 0.88)',
+              fontSize: 16,
+              opacity: 0.85,
+              lineHeight: 1.5,
+              '&:first-child': {
+                marginTop: 12,
+              },
+            },
           },
-          '*': { boxSizing: 'border-box', fontFamily: token.fontFamily },
+
+          '&:hover': {
+            backgroundColor: token.colorBgTextHover,
+          },
           '* div': resetComponent?.(token),
           a: {
             display: 'flex',

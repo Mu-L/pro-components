@@ -42,6 +42,7 @@ export default () => (
                 collapsed: true,
                 menuName: '域买家维度交易',
                 name: '域买家维度交易',
+                path: '/xx',
                 routes: [
                   {
                     id: 2,
@@ -73,7 +74,11 @@ export default () => (
           },
         ],
       }}
-      menu={{ defaultOpenAll: true, hideMenuWhenCollapsed: true, ignoreFlatMenu: true }}
+      menu={{
+        defaultOpenAll: true,
+        hideMenuWhenCollapsed: true,
+        ignoreFlatMenu: true,
+      }}
     >
       <PageContainer content="欢迎使用">
         <div>Hello World</div>

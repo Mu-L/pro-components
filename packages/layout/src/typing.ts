@@ -1,22 +1,12 @@
-import type * as H from 'history';
 import type React from 'react';
 
 export interface StaticContext {
   statusCode?: number | undefined;
 }
 
-export interface BasicRouteProps<
+export interface match<
   Params extends { [K in keyof Params]?: string } = Record<string, any>,
-  C extends StaticContext = StaticContext,
-  S = H.LocationState,
 > {
-  history: H.History<S>;
-  location: H.Location<S>;
-  match: match<Params>;
-  staticContext?: C | undefined;
-}
-
-export interface match<Params extends { [K in keyof Params]?: string } = Record<string, any>> {
   params: Params;
   isExact: boolean;
   path: string;
@@ -24,7 +14,7 @@ export interface match<Params extends { [K in keyof Params]?: string } = Record<
 }
 
 export type LinkProps = {
-  to: H.LocationDescriptor;
+  to: string;
   replace?: boolean;
   innerRef?: React.Ref<HTMLAnchorElement>;
 } & React.AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -47,6 +37,8 @@ export type MenuDataItem = {
   key?: string;
   /** @name disable 菜单选项 */
   disabled?: boolean;
+  /** @name disable menu 的 tooltip 菜单选项 */
+  disabledTooltip?: boolean;
   /** @name 路径,可以设定为网页链接 */
   path?: string;
   /**
@@ -75,8 +67,8 @@ export type WithFalse<T> = T | false;
 export type RouterTypes = {
   computedMatch?: match<any>;
   route?: Route;
-  location: BasicRouteProps['location'] | { pathname?: string };
-} & Omit<BasicRouteProps, 'location'>;
+  location: { pathname?: string };
+};
 
 export type MessageDescriptor = {
   id: any;

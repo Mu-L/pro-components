@@ -12,7 +12,7 @@ import {
   ProFormTreeSelect,
 } from '@ant-design/pro-components';
 import { TreeSelect } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useRef } from 'react';
 
 const treeData = [
@@ -88,7 +88,12 @@ export default () => {
           placeholder="请输入名称"
           rules={[{ required: true, message: '这是必填项' }]}
         />
-        <ProFormText width="md" name="company" label="我方公司名称" placeholder="请输入名称" />
+        <ProFormText
+          width="md"
+          name="company"
+          label="我方公司名称"
+          placeholder="请输入名称"
+        />
       </ProForm.Group>
       <ProForm.Group>
         <ProFormDigit name="count" label="人数" width="lg" />
@@ -100,7 +105,11 @@ export default () => {
           label="合同名称"
           placeholder="请输入名称"
         />
-        <ProFormDateRangePicker width="md" name={['contract', 'createTime']} label="合同生效时间" />
+        <ProFormDateRangePicker
+          width="md"
+          name={['contract', 'createTime']}
+          label="合同生效时间"
+        />
       </ProForm.Group>
       <ProForm.Group>
         <ProFormSelect
@@ -148,8 +157,20 @@ export default () => {
         />
       </ProForm.Group>
       <ProFormText width="sm" name="id" label="主合同编号" />
-      <ProFormText name="project" width="md" disabled label="项目名称" initialValue="xxxx项目" />
-      <ProFormText width="xs" name="mangerName" disabled label="商务经理" initialValue="启途" />
+      <ProFormText
+        name="project"
+        width="md"
+        disabled
+        label="项目名称"
+        initialValue="xxxx项目"
+      />
+      <ProFormText
+        width="xs"
+        name="mangerName"
+        disabled
+        label="商务经理"
+        initialValue="启途"
+      />
       <ProFormCascader
         width="md"
         request={async () => [
@@ -209,18 +230,21 @@ export default () => {
         name="date"
         transform={(value) => {
           return {
-            date: moment(value).unix(),
+            date: dayjs(value).unix(),
           };
         }}
       />
-      <ProFormList name="datas" initialValue={[{ date: '2022-10-12 10:00:00' }]}>
+      <ProFormList
+        name="datas"
+        initialValue={[{ date: '2022-10-12 10:00:00' }]}
+      >
         {() => {
           return (
             <ProFormDatePicker
               name="date"
               transform={(value) => {
                 return {
-                  date: moment(value).unix(),
+                  date: dayjs(value).unix(),
                 };
               }}
             />

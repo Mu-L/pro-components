@@ -1,5 +1,10 @@
-import { CrownOutlined, LeftOutlined, SmileOutlined, UserOutlined } from '@ant-design/icons';
-import ProLayout from '@ant-design/pro-layout';
+import {
+  CrownOutlined,
+  LeftOutlined,
+  SmileOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { ProLayout } from '@ant-design/pro-components';
 import { Button, Result, Space, Tag } from 'antd';
 import { useState } from 'react';
 

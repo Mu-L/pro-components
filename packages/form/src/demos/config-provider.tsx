@@ -12,8 +12,8 @@ import {
   StepsForm,
 } from '@ant-design/pro-components';
 import { ConfigProvider, Input } from 'antd';
-import enUS from 'antd/es/locale/en_US';
-import { LightWrapper } from '../BaseForm';
+import enUS from 'antd/lib/locale/en_US';
+import { LightWrapper } from '../BaseForm/LightWrapper';
 
 export default () => (
   <ConfigProvider locale={enUS}>

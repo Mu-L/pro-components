@@ -5,11 +5,15 @@ import {
   ProFormTreeSelect,
   QueryFilter,
 } from '@ant-design/pro-form';
-import '@testing-library/jest-dom';
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { TreeSelect } from 'antd';
 import { _el, _rs } from 'rc-resize-observer/lib/utils/observerUtil';
-import { waitTime } from '../util';
+import { act } from 'react';
+import { waitForWaitTime } from '../util';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('✔️ ProFormLightFilter', () => {
   afterEach(() => {
@@ -31,7 +35,10 @@ describe('✔️ ProFormLightFilter', () => {
     await act(async () => {
       (await html.findByText('名称'))?.click();
     });
-    await waitTime(200);
+
+    await waitFor(() => {
+      return html.findByRole('name_input');
+    });
 
     await act(async () => {
       const dom = await html.findByRole('name_input');
@@ -42,13 +49,13 @@ describe('✔️ ProFormLightFilter', () => {
       });
     });
 
-    await waitTime(200);
+    await waitFor(() => {
+      return html.findAllByText('确 认');
+    });
 
     await act(async () => {
       (await html.findAllByText('确 认')).at(0)?.click();
     });
-
-    await waitTime(200);
 
     const dom = await html.findAllByTitle('qixian');
 
@@ -58,13 +65,13 @@ describe('✔️ ProFormLightFilter', () => {
       (await html.findAllByTitle('qixian')).at(0)?.click();
       (await html.findAllByText('清除')).at(0)?.parentElement?.click();
     });
-    await waitTime(500);
 
     await act(async () => {
       (await html.findAllByText('确 认')).at(0)?.click();
     });
-
-    await waitTime(200);
+    await waitFor(() => {
+      return html.findAllByText('名称');
+    });
     expect(!!(await html.findByText('名称'))).toBeTruthy();
   });
   it(' ✔️ QueryFilter resize', async () => {
@@ -77,9 +84,9 @@ describe('✔️ ProFormLightFilter', () => {
     await act(async () => {
       (await html.findByText('名称'))?.click();
     });
-    await waitTime(200);
+    await waitForWaitTime(200);
 
-    await waitTime(200);
+    await waitForWaitTime(200);
 
     const dom = html.baseElement.querySelector('form')!;
     // @ts-ignore
