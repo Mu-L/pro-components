@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProListToken extends ProAliasToken {
@@ -14,7 +14,7 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         justifyContent: 'space-between',
         paddingBlock: token.padding,
         paddingInline: 0,
-        ' &-mobile': { flexDirection: 'column' },
+        '&-mobile': { flexDirection: 'column' },
       },
       '&-title': {
         display: 'flex',
@@ -40,14 +40,39 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           color: token.colorPrimary,
         },
       },
-      '&-left': { display: 'flex', alignItems: 'center', justifyContent: 'flex-start' },
-      '&-right': { display: 'flex', justifyContent: 'flex-end' },
+      '&-left': {
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: token.marginXS,
+        justifyContent: 'flex-start',
+        maxWidth: 'calc(100% - 200px)',
+        [`${token.antCls}-tabs`]: {
+          width: '100%',
+        },
+        '&-has-tabs': {
+          overflow: 'hidden',
+        },
+      },
+      '&-right': {
+        flex: 1,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end',
+        gap: token.marginXS,
+      },
       '&-extra-line': { marginBlockEnd: token.margin },
+      '&-setting-items': {
+        display: 'flex',
+        gap: token.marginXS,
+        lineHeight: '32px',
+        alignItems: 'center',
+      },
       '&-filter': {
         '&:not(:last-child)': { marginInlineEnd: token.margin },
         display: 'flex',
         alignItems: 'center',
-        [`div.$${token.antCls}-pro-table-search`]: {
+        [`div$${token.antCls}-pro-table-search`]: {
           marginBlock: 0,
           marginInline: 0,
           paddingBlock: 0,
@@ -77,10 +102,14 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         textAlign: 'center',
         cursor: 'pointer',
       },
-      '@media (max-width: 575px)': {
+      '@media (max-width: 768px)': {
         [token.componentCls]: {
-          '&-container': { display: 'flex', flexWrap: 'wrap' },
-          '&-left': { marginBlockEnd: '16px' },
+          '&-container': {
+            display: 'flex',
+            flexWrap: 'wrap',
+            flexDirection: 'column',
+          },
+          '&-left': { marginBlockEnd: '16px', maxWidth: '100%' },
         },
       },
     },
@@ -88,12 +117,11 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
 };
 
 export function useStyle(prefixCls: string) {
-  return useAntdStyle('DragSortTable', (token) => {
+  return useAntdStyle('ProTableListToolBar', (token) => {
     const proListToken: ProListToken = {
       ...token,
       componentCls: `.${prefixCls}`,
     };
-
     return [genProListStyle(proListToken)];
   });
 }

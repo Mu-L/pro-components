@@ -1,14 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import type { GenerateStyle } from '@ant-design/pro-provider';
 import { isBrowser } from '@ant-design/pro-utils';
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
-import omit from 'omit.js';
+import omit from 'rc-util/lib/omit';
 import type { ReactNode } from 'react';
 import React, { useContext, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { RouteContextType } from '../../index';
 import { RouteContext } from '../../index';
+import type { FooterToolBarToken } from './style';
 import { useStyle } from './style';
+import { useStylish } from './style/stylish';
 
 export type FooterToolbarProps = {
   extra?: React.ReactNode;
@@ -19,14 +22,26 @@ export type FooterToolbarProps = {
     dom: JSX.Element,
   ) => ReactNode;
   prefixCls?: string;
-
+  stylish?: GenerateStyle<FooterToolBarToken>;
   children?: React.ReactNode;
+  portalDom?: boolean;
 };
 
 const FooterToolbar: React.FC<FooterToolbarProps> = (props) => {
-  const { children, className, extra, style, renderContent, ...restProps } = props;
-  const { getPrefixCls, getTargetContainer } = useContext(ConfigProvider.ConfigContext);
+  const {
+    children,
+    className,
+    extra,
+    portalDom = true,
+    style,
+    renderContent,
+    ...restProps
+  } = props;
+  const { getPrefixCls, getTargetContainer } = useContext(
+    ConfigProvider.ConfigContext,
+  );
   const prefixCls = props.prefixCls || getPrefixCls('pro');
+
   const baseClassName = `${prefixCls}-footer-bar`;
   const { wrapSSR, hashId } = useStyle(baseClassName);
 
@@ -45,14 +60,21 @@ const FooterToolbar: React.FC<FooterToolbarProps> = (props) => {
   }, [value.collapsed, value.hasSiderMenu, value.isMobile, value.siderWidth]);
 
   const containerDom = useMemo(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined')
+      return null;
     // 只读取一次就行了，不然总是的渲染
-    return getTargetContainer?.() || document.querySelector('.ant-pro') || document.body;
+    return getTargetContainer?.() || document.body;
   }, []);
 
+  const stylish = useStylish(`${baseClassName}.${baseClassName}-stylish`, {
+    stylish: props.stylish,
+  });
   const dom = (
     <>
-      <div className={`${baseClassName}-left ${hashId}`}>{extra}</div>
-      <div className={`${baseClassName}-right ${hashId}`}>{children}</div>
+      <div className={`${baseClassName}-left ${hashId}`.trim()}>{extra}</div>
+      <div className={`${baseClassName}-right ${hashId}`.trim()}>
+        {children}
+      </div>
     </>
   );
 
@@ -70,7 +92,9 @@ const FooterToolbar: React.FC<FooterToolbarProps> = (props) => {
 
   const renderDom = (
     <div
-      className={classNames(className, hashId, baseClassName)}
+      className={classNames(className, hashId, baseClassName, {
+        [`${baseClassName}-stylish`]: !!props.stylish,
+      })}
       style={{ width, ...style }}
       {...omit(restProps, ['prefixCls'])}
     >
@@ -86,9 +110,14 @@ const FooterToolbar: React.FC<FooterToolbarProps> = (props) => {
         : dom}
     </div>
   );
+  const ssrDom =
+    !isBrowser() || !portalDom || !containerDom
+      ? renderDom
+      : createPortal(renderDom, containerDom, baseClassName);
 
-  const ssrDom = !isBrowser() ? renderDom : createPortal(renderDom, containerDom, baseClassName);
-  return wrapSSR(ssrDom);
+  return stylish.wrapSSR(
+    wrapSSR(<React.Fragment key={baseClassName}>{ssrDom}</React.Fragment>),
+  );
 };
 
 export { FooterToolbar };

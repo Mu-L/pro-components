@@ -1,36 +1,67 @@
 ---
-title: ProComponents - page-like components
-order: 10
-sidebar: false
+title: ProComponents - Front-end components at page level
 hero:
   title: ProComponents
-  desc: 🏆 Make middle and back-end development easier
+  description: 🏆  Make the development of middle and back office easier
   actions:
-    - text: 🏮🏮 Quick Start →
-      link: /docs/getting-started
+    - text: 🏮🏮 Introduction →
+      link: /en-US/docs
 
 features:
-  - icon: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/q48YQ5X4ytAAAAAAAAAAAAAAAFl94AQBr
-    title: easy to use
-    desc: It has its own encapsulation on Ant Design, which is easier to use
-  - icon: https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg
+  - image: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/q48YQ5X4ytAAAAAAAAAAAAAAFl94AQBr
+    title: Easy to use
+    description: It has its own packaging on Ant Design, which is easier to use
+
+  - image: https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg
     title: Ant Design
-    desc: In the same vein as the Ant Design design system, it seamlessly connects to antd projects
-  - icon: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/UKqDTIp55HYAAAAAAAAAAAAAFl94AQBr
+    description: It is in the same line with Ant Design design system and seamlessly connects with ant project
+
+  - image: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/UKqDTIp55HYAAAAAAAAAAAAAFl94AQBr
     title: Internationalization
-    desc: Provide complete internationalization and connect with Ant Design system
-  - icon: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/Y_NMQKxw7OgAAAAAAAAAAAAAFl94AQBr
-    title: Default style
-    desc: The style is in the same line as antd, no need to change, it is natural
-  - icon: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/U3XjS5IA1tUAAAAAAAAAAAAAFl94AQBr
-    title: Default Behavior
-    desc: less code, less bugs
-  - icon: https://gw.alipayobjects.com/zos/antfincdn/Eb8IHpb9jE/Typescript_logo_2020.svg
+    description: Provide complete internationalization and connect with Ant Design system
+
+  - image: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/Y_NMQKxw7OgAAAAAAAAAAAAAFl94AQBr
+    title: Preset Style
+    description: The style and style are in one continuous line with ant d, without magic modification, and naturally
+
+  - image: https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/U3XjS5IA1tUAAAAAAAAAAAAAFl94AQBr
+    title: Preset behavior
+    description: Less code, fewer bugs
+
+  - image: https://gw.alipayobjects.com/zos/antfincdn/Eb8IHpb9jE/Typescript_logo_2020.svg
     title: TypeScript
-    desc: Developed with TypeScript, provides a complete type definition file
+    description: Use TypeScript development to provide a complete type definition file
 
 footer: Open-source MIT Licensed | © 2017-present
 ---
+
+ProComponents is a UI component library designed for enterprise-level applications using React. Some of the advantages of ProComponents include:
+
+- Rich component library: ProComponents provides a vast set of UI components, including tables, forms, charts, maps, tree views, and more, capable of meeting most of the requirements for enterprise applications.
+
+- Powerful features: ProComponents' components not only provide basic UI display functions but also have complex data manipulation and business logic processing capabilities, allowing rapid development of robust enterprise applications.
+
+- Easy to use: ProComponents has a simple, user-friendly API and comprehensive documentation, enabling developers to quickly learn and use the components.
+
+- Visual configuration support: ProComponents provides visual configuration tools for some components, making it easier for developers to complete simple component configuration work.
+
+- Highly customizable: ProComponents' components support multiple configurations and custom styles to meet the needs of different projects.
+
+In summary, ProComponents is a powerful, easy-to-use, customizable, and enterprise-level UI component library suitable for applications of all scales and types.
+
+### shortcoming
+
+ProComponents is a UI component library based on React and designed for enterprise-level applications. Although ProComponents has many advantages, there are also some disadvantages to consider:
+
+-Limited customization: ProComponents provides a rich set of components, but the customization options are relatively limited. It may be challenging to customize the components to meet specific project requirements.
+
+-Steep learning curve: ProComponents has a complex API and documentation, which can be challenging for beginners to understand and use. The learning curve may be steep, and it may take some time to become proficient in using the library.
+
+-Limited browser compatibility: ProComponents relies on modern browser features and may not work correctly on older browsers. This can limit the reach of the application and require additional development time to ensure cross-browser compatibility.
+
+-Heavy codebase: ProComponents has a large codebase, which can slow down the development process and make it more challenging to maintain the codebase over time.
+
+In summary, ProComponents is a powerful UI component library for enterprise applications, but it also has some limitations, such as limited customization, a steep learning curve, limited browser compatibility, and a heavy codebase. Developers should carefully evaluate their project requirements and constraints before choosing to use ProComponents.
 
 ## Component Kanban
 

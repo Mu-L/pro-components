@@ -1,14 +1,27 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import { Keyframes } from '@ant-design/cssinjs';
+import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProListToken extends ProAliasToken {
   componentCls: string;
 }
 
+export const turn = new Keyframes('turn', {
+  '0%': { transform: 'rotate(0deg)' },
+  '25%': { transform: 'rotate(90deg)' },
+  '50%': { transform: 'rotate(180deg)' },
+  '75%': { transform: 'rotate(270deg)' },
+  '100%': { transform: 'rotate(360deg)' },
+}) as any;
+
 const genProListStyle: GenerateStyle<ProListToken> = (token) => {
   return {
     [token.componentCls]: {
       zIndex: 1,
+      [`${token.antCls}-table-wrapper ${token.antCls}-table-pagination${token.antCls}-pagination`]:
+        {
+          marginBlockEnd: 0,
+        },
       '&:not(:root):fullscreen': {
         minHeight: '100vh',
         overflow: 'auto',
@@ -21,14 +34,14 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         [`${token.componentCls}-list-toolbar-setting-item`]: {
           '.anticon.anticon-reload': {
             transform: 'rotate(0deg)',
-            animationName: 'turn',
+            animationName: turn,
             animationDuration: '1s',
             animationTimingFunction: 'linear',
             animationIterationCount: 'infinite',
           },
         },
       },
-      'td${token.antCls}-table-cell': {
+      [`td${token.antCls}-table-cell`]: {
         '>a': {
           fontSize: token.fontSize,
         },
@@ -38,10 +51,14 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           marginBlock: 0,
           marginInline: 0,
         },
-      [`${token.antCls}-table${token.antCls}-table-middle ${token.componentCls}`]: {
-        marginBlock: -12,
-        marginInline: -8,
-      },
+      [`${token.antCls}-table${token.antCls}-table-middle ${token.componentCls}`]:
+        {
+          marginBlock: 0,
+          marginInline: -8,
+          [`${token.proComponentsCls}-card`]: {
+            backgroundColor: 'initial',
+          },
+        },
 
       '& &-search': {
         marginBlockEnd: '16px',
@@ -72,7 +89,10 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
           [token.componentCls]: {
             height: 'auto !important',
             paddingBlockEnd: '24px',
-            [`${token.antCls}-form-item-label`]: { minWidth: '80px', textAlign: 'start' },
+            [`${token.antCls}-form-item-label`]: {
+              minWidth: '80px',
+              textAlign: 'start',
+            },
           },
         },
       },
@@ -83,7 +103,11 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         height: '64px',
         paddingInline: 24,
         paddingBlock: 0,
-        '&-option': { display: 'flex', alignItems: 'center', justifyContent: 'flex-end' },
+        '&-option': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        },
         '&-title': {
           flex: '1',
           color: token.colorTextLabel,
@@ -94,15 +118,8 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         },
       },
     },
-    '@keyframes turn': {
-      '0%': { transform: 'rotate(0deg)' },
-      '25%': { transform: 'rotate(90deg)' },
-      '50%': { transform: 'rotate(180deg)' },
-      '75%': { transform: 'rotate(270deg)' },
-      '100%': { transform: 'rotate(360deg)' },
-    },
 
-    [`@media (max-width: ${token.screenXS})`]: {
+    [`@media (max-width: ${token.screenXS})px`]: {
       [token.componentCls]: {
         [`${token.antCls}-table`]: {
           width: '100%',
@@ -133,7 +150,11 @@ const genProListStyle: GenerateStyle<ProListToken> = (token) => {
         '&-title': {
           marginBlockEnd: 16,
         },
-        '&-option': { display: 'flex', justifyContent: 'space-between', width: '100%' },
+        '&-option': {
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%',
+        },
         '&-default-option': {
           display: 'flex',
           flex: '1',

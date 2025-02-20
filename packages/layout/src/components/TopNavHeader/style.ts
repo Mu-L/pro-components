@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface TopNavHeaderToken extends ProAliasToken {
@@ -22,7 +22,6 @@ const genTopNavHeaderStyle: GenerateStyle<TopNavHeaderToken> = (token) => {
         '&-left': {
           display: 'flex',
           alignItems: 'center',
-          minWidth: '192px',
           [`${token.proComponentsCls}-layout-apps-icon`]: {
             marginInlineEnd: 16,
             marginInlineStart: -8,
@@ -35,7 +34,6 @@ const genTopNavHeaderStyle: GenerateStyle<TopNavHeaderToken> = (token) => {
       },
       '&-logo': {
         position: 'relative',
-        minWidth: '165px',
         display: 'flex',
         height: '100%',
         alignItems: 'center',
@@ -59,7 +57,7 @@ const genTopNavHeaderStyle: GenerateStyle<TopNavHeaderToken> = (token) => {
           marginInlineStart: 6,
           fontWeight: '600',
           fontSize: '16px',
-          color: token?.layout?.header?.colorHeaderTitle,
+          color: token.layout?.header?.colorHeaderTitle,
           verticalAlign: 'top',
         },
       },
@@ -69,7 +67,10 @@ const genTopNavHeaderStyle: GenerateStyle<TopNavHeaderToken> = (token) => {
         alignItems: 'center',
         paddingInline: 6,
         paddingBlock: 6,
-        lineHeight: `${(token?.layout?.header?.heightLayoutHeader || 56) - 12}px`,
+        lineHeight: `${Math.max(
+          (token.layout?.header?.heightLayoutHeader || 56) - 12,
+          40,
+        )}px`,
       },
     },
   };

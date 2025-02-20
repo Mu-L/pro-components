@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface StepsFormToken extends ProAliasToken {
@@ -8,7 +8,12 @@ export interface StepsFormToken extends ProAliasToken {
 const genStepsFormStyle: GenerateStyle<StepsFormToken> = (token) => {
   return {
     [token.componentCls]: {
-      '&-container': { width: 'max-content', minWidth: '520px', maxWidth: '100%', margin: 'auto' },
+      '&-container': {
+        width: 'max-content',
+        minWidth: '420px',
+        maxWidth: '100%',
+        margin: 'auto',
+      },
       '&-steps-container': {
         maxWidth: '1160px',
         margin: 'auto',

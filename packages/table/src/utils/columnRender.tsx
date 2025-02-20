@@ -5,12 +5,12 @@ import type {
   ProTableEditableFnType,
   UseEditableUtilType,
 } from '@ant-design/pro-utils';
-import { genCopyable, isNil, LabelIconTip } from '@ant-design/pro-utils';
-import { Space } from 'antd';
+import { LabelIconTip, genCopyable, isNil } from '@ant-design/pro-utils';
+import { AnyObject } from 'antd/es/_util/type';
 import get from 'rc-util/lib/utils/get';
 import React from 'react';
 import { isMergeCell } from '.';
-import type { useContainer } from '../container';
+import type { ContainerType } from '../Store/Provide';
 import type { ActionType, ProColumns } from '../typing';
 import cellRenderToFromItem from './cellRenderToFromItem';
 
@@ -22,9 +22,10 @@ type ColumnRenderInterface<T> = {
   index: number;
   columnEmptyText?: ProFieldEmptyText;
   type: ProSchemaComponentTypes;
-  counter: ReturnType<typeof useContainer>;
+  counter: ReturnType<ContainerType>;
   editableUtils: UseEditableUtilType;
   subName: string[];
+  marginSM?: number;
 };
 
 /**
@@ -34,15 +35,30 @@ type ColumnRenderInterface<T> = {
  */
 export const renderColumnsTitle = (item: ProColumns<any>) => {
   const { title } = item;
-  const ellipsis = typeof item?.ellipsis === 'boolean' ? item?.ellipsis : item?.ellipsis?.showTitle;
+  const ellipsis =
+    typeof item?.ellipsis === 'boolean'
+      ? item?.ellipsis
+      : item?.ellipsis?.showTitle;
   if (title && typeof title === 'function') {
-    return title(item, 'table', <LabelIconTip label={null} tooltip={item.tooltip || item.tip} />);
+    return title(
+      item,
+      'table',
+      //@ts-expect-error
+      <LabelIconTip label={null} tooltip={item.tooltip || item.tip} />,
+    );
   }
-  return <LabelIconTip label={title} tooltip={item.tooltip || item.tip} ellipsis={ellipsis} />;
+  return (
+    <LabelIconTip
+      label={title}
+      //@ts-expect-error
+      tooltip={item.tooltip || item.tip}
+      ellipsis={ellipsis}
+    />
+  );
 };
 
-/** 判断可不可编辑 */
-function isEditableCell<T>(
+/** 判断是否为不可编辑的单元格 */
+function isNotEditableCell<T>(
   text: any,
   rowData: T,
   index: number,
@@ -62,7 +78,11 @@ function isEditableCell<T>(
  * @param dataIndex
  * @returns
  */
-export const defaultOnFilter = (value: string, record: any, dataIndex: string | string[]) => {
+export const defaultOnFilter = (
+  value: string,
+  record: any,
+  dataIndex: string | string[],
+) => {
   const recordElement = Array.isArray(dataIndex)
     ? get(record, dataIndex as string[])
     : record[dataIndex];
@@ -76,7 +96,7 @@ export const defaultOnFilter = (value: string, record: any, dataIndex: string | 
  *
  * @param param0
  */
-export function columnRender<T>({
+export function columnRender<T extends AnyObject>({
   columnProps,
   text,
   rowData,
@@ -85,15 +105,22 @@ export function columnRender<T>({
   counter,
   type,
   subName,
+  marginSM,
   editableUtils,
 }: ColumnRenderInterface<T>): any {
   const { action, prefixName } = counter;
-  const { isEditable, recordKey } = editableUtils.isEditable({ ...rowData, index });
+  const { isEditable, recordKey } = editableUtils.isEditable({
+    ...rowData,
+    index,
+  });
   const { renderText = (val: any) => val } = columnProps;
 
   const renderTextStr = renderText(text, rowData, index, action as ActionType);
   const mode =
-    isEditable && !isEditableCell(text, rowData, index, columnProps?.editable) ? 'edit' : 'read';
+    isEditable &&
+    !isNotEditableCell(text, rowData, index, columnProps?.editable)
+      ? 'edit'
+      : 'read';
 
   const textDom = cellRenderToFromItem<T>({
     text: renderTextStr,
@@ -118,18 +145,28 @@ export function columnRender<T>({
   });
 
   const dom: React.ReactNode =
-    mode === 'edit' ? textDom : genCopyable(textDom, columnProps, renderTextStr);
+    mode === 'edit'
+      ? textDom
+      : genCopyable(textDom, columnProps, renderTextStr);
 
   /** 如果是编辑模式，并且 renderFormItem 存在直接走 renderFormItem */
   if (mode === 'edit') {
     if (columnProps.valueType === 'option') {
       return (
-        <Space size={16}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: marginSM,
+            justifyContent:
+              columnProps.align === 'center' ? 'center' : 'flex-start',
+          }}
+        >
           {editableUtils.actionRender({
             ...rowData,
             index: columnProps.index || index,
           })}
-        </Space>
+        </div>
       );
     }
     return dom;
@@ -161,8 +198,23 @@ export function columnRender<T>({
     return renderDom;
   }
 
-  if (renderDom && columnProps.valueType === 'option' && Array.isArray(renderDom)) {
-    return <Space size={16}>{renderDom}</Space>;
+  if (
+    renderDom &&
+    columnProps.valueType === 'option' &&
+    Array.isArray(renderDom)
+  ) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: 8,
+        }}
+      >
+        {renderDom}
+      </div>
+    );
   }
   return renderDom as React.ReactNode;
 }

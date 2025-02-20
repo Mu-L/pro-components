@@ -1,39 +1,29 @@
+import { ProProvider } from '@ant-design/pro-provider';
 import { openVisibleCompatible } from '@ant-design/pro-utils';
-import { getFlatMenus } from '@umijs/route-utils';
-import { Drawer } from 'antd';
+import { ConfigProvider, Drawer } from 'antd';
 import classNames from 'classnames';
-import Omit from 'omit.js';
-import React, { useEffect } from 'react';
-import { MenuCounter } from './Counter';
+import omit from 'rc-util/lib/omit';
+import React, { useContext, useEffect } from 'react';
 import type { PrivateSiderMenuProps, SiderMenuProps } from './SiderMenu';
 import { SiderMenu } from './SiderMenu';
 import { useStyle } from './style/index';
 
-const SiderMenuWrapper: React.FC<SiderMenuProps & PrivateSiderMenuProps> = (props) => {
+const SiderMenuWrapper: React.FC<SiderMenuProps & PrivateSiderMenuProps> = (
+  props,
+) => {
   const {
     isMobile,
-    menuData,
     siderWidth,
     collapsed,
     onCollapse,
     style,
     className,
     hide,
-    getContainer,
     prefixCls,
-    matchMenuKeys,
+    getContainer,
   } = props;
-  const { setFlatMenuKeys } = MenuCounter.useContainer();
 
-  useEffect(() => {
-    if (!menuData || menuData.length < 1) {
-      return;
-    }
-    // 当 menu data 改变的时候重新计算这两个参数
-    const newFlatMenus = getFlatMenus(menuData);
-    setFlatMenuKeys(Object.keys(newFlatMenus));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchMenuKeys.join('-')]);
+  const { token } = useContext(ProProvider);
 
   useEffect(() => {
     if (isMobile === true) {
@@ -42,7 +32,9 @@ const SiderMenuWrapper: React.FC<SiderMenuProps & PrivateSiderMenuProps> = (prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
-  const omitProps = Omit(props, ['className', 'style']);
+  const omitProps = omit(props, ['className', 'style']);
+
+  const { direction } = React.useContext(ConfigProvider.ConfigContext);
 
   const { wrapSSR, hashId } = useStyle(`${prefixCls}-sider`, {
     proLayoutCollapsedWidth: 64,
@@ -54,12 +46,14 @@ const SiderMenuWrapper: React.FC<SiderMenuProps & PrivateSiderMenuProps> = (prop
     return null;
   }
 
-  const drawerOpenProps = openVisibleCompatible(!collapsed, () => onCollapse?.(true));
+  const drawerOpenProps = openVisibleCompatible(!collapsed, () =>
+    onCollapse?.(true),
+  );
 
   return wrapSSR(
     isMobile ? (
       <Drawer
-        placement="left"
+        placement={direction === 'rtl' ? 'right' : 'left'}
         className={classNames(`${prefixCls}-drawer-sider`, className)}
         {...drawerOpenProps}
         style={{
@@ -67,10 +61,22 @@ const SiderMenuWrapper: React.FC<SiderMenuProps & PrivateSiderMenuProps> = (prop
           height: '100vh',
           ...style,
         }}
+        onClose={() => {
+          onCollapse?.(true);
+        }}
+        maskClosable
         closable={false}
-        getContainer={getContainer}
+        getContainer={getContainer || false}
         width={siderWidth}
-        bodyStyle={{ height: '100vh', padding: 0, display: 'flex', flexDirection: 'row' }}
+        styles={{
+          body: {
+            height: '100vh',
+            padding: 0,
+            display: 'flex',
+            flexDirection: 'row',
+            backgroundColor: token.layout?.sider?.colorMenuBackground,
+          },
+        }}
       >
         <SiderMenu
           {...omitProps}

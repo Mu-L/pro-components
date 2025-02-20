@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 import { genAppsLogoComponentsDefaultListStyle } from './default';
 import { genAppsLogoComponentsSimpleListStyle } from './simple';
@@ -7,7 +7,9 @@ export interface AppsLogoComponentsToken extends ProAliasToken {
   componentCls: string;
 }
 
-const genAppsLogoComponentsStyle: GenerateStyle<AppsLogoComponentsToken> = (token) => {
+const genAppsLogoComponentsStyle: GenerateStyle<AppsLogoComponentsToken> = (
+  token,
+) => {
   return {
     [token.componentCls]: {
       '&-icon': {
@@ -21,23 +23,34 @@ const genAppsLogoComponentsStyle: GenerateStyle<AppsLogoComponentsToken> = (toke
         height: 28,
         width: 28,
         cursor: 'pointer',
-        color: token?.layout?.colorTextAppListIcon,
+        color: token.layout?.colorTextAppListIcon,
+        borderRadius: token.borderRadius,
         '&:hover': {
-          color: token?.layout?.colorTextAppListIconHover,
-          backgroundColor: token?.layout?.colorBgAppListIconHover,
+          color: token.layout?.colorTextAppListIconHover,
+          backgroundColor: token.layout?.colorBgAppListIconHover,
         },
         '&-active': {
-          color: token?.layout?.colorTextAppListIconHover,
-          backgroundColor: token?.layout?.colorBgAppListIconHover,
+          color: token.layout?.colorTextAppListIconHover,
+          backgroundColor: token.layout?.colorBgAppListIconHover,
+        },
+      },
+      '&-item-title': {
+        marginInlineStart: '16px',
+        marginInlineEnd: '8px',
+        marginBlockStart: 0,
+        marginBlockEnd: '12px',
+        fontWeight: 600,
+        color: 'rgba(0, 0, 0, 0.88)',
+        fontSize: 16,
+        opacity: 0.85,
+        lineHeight: 1.5,
+        '&:first-child': {
+          marginBlockStart: 12,
         },
       },
       '&-popover': {
         [`${token.antCls}-popover-arrow`]: {
           display: 'none',
-        },
-        '*': {
-          boxSizing: 'border-box',
-          fontFamily: token.fontFamily,
         },
       },
       '&-simple': genAppsLogoComponentsSimpleListStyle(token),

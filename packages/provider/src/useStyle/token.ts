@@ -1,6 +1,9 @@
 ﻿import { createTheme } from '@ant-design/cssinjs';
 
-export const defaultTheme = {
+import { theme } from 'antd';
+import type { GlobalToken } from 'antd/lib/theme/interface';
+
+export const defaultToken = {
   blue: '#1677ff',
   purple: '#722ED1',
   cyan: '#13C2C2',
@@ -22,7 +25,7 @@ export const defaultTheme = {
   colorTextBase: '#000',
   colorBgBase: '#fff',
   fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,\\n'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',\\n'Noto Color Emoji'",
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
   fontSize: 14,
   lineWidth: 1,
   lineType: 'solid',
@@ -182,7 +185,7 @@ export const defaultTheme = {
   colorFillSecondary: 'rgba(0, 0, 0, 0.06)',
   colorFillTertiary: 'rgba(0, 0, 0, 0.04)',
   colorFillQuaternary: 'rgba(0, 0, 0, 0.02)',
-  colorBgLayout: '#f5f5f5',
+  colorBgLayout: 'hsl(220,23%,97%)',
   colorBgContainer: '#ffffff',
   colorBgElevated: '#ffffff',
   colorBgSpotlight: 'rgba(0, 0, 0, 0.85)',
@@ -252,8 +255,9 @@ export const defaultTheme = {
   motionDurationSlow: '0.3s',
   fontSizes: [12, 14, 16, 20, 24, 30, 38, 46, 56, 68],
   lineHeights: [
-    1.6666666666666667, 1.5714285714285714, 1.5, 1.4, 1.3333333333333333, 1.2666666666666666,
-    1.2105263157894737, 1.173913043478261, 1.1428571428571428, 1.1176470588235294,
+    1.6666666666666667, 1.5714285714285714, 1.5, 1.4, 1.3333333333333333,
+    1.2666666666666666, 1.2105263157894737, 1.173913043478261,
+    1.1428571428571428, 1.1176470588235294,
   ],
   lineWidthBold: 2,
   borderRadiusXS: 1,
@@ -336,9 +340,9 @@ export const defaultTheme = {
   marginXL: 32,
   marginXXL: 48,
   boxShadow:
-    '\\n      0 1px 2px 0 rgba(0, 0, 0, 0.03),\\n      0 1px 6px -1px rgba(0, 0, 0, 0.02),\\n      0 2px 4px 0 rgba(0, 0, 0, 0.02)\\n    ',
+    '0 1px 2px 0 rgba(0, 0, 0, 0.03),0 1px 6px -1px rgba(0, 0, 0, 0.02),0 2px 4px 0 rgba(0, 0, 0, 0.02)',
   boxShadowSecondary:
-    '\\n      0 6px 16px 0 rgba(0, 0, 0, 0.08),\\n      0 3px 6px -4px rgba(0, 0, 0, 0.12),\\n      0 9px 28px 8px rgba(0, 0, 0, 0.05)\\n    ',
+    '0 6px 16px 0 rgba(0, 0, 0, 0.08),0 3px 6px -4px rgba(0, 0, 0, 0.12),0 9px 28px 8px rgba(0, 0, 0, 0.05)',
   screenXS: 480,
   screenXSMin: 480,
   screenXSMax: 479,
@@ -359,22 +363,22 @@ export const defaultTheme = {
   screenXXLMax: 1599,
   boxShadowPopoverArrow: '3px 3px 7px rgba(0, 0, 0, 0.1)',
   boxShadowCard:
-    '\\n      0 1px 2px -2px rgba(0, 0, 0, 0.16),\\n      0 3px 6px 0 rgba(0, 0, 0, 0.12),\\n      0 5px 12px 4px rgba(0, 0, 0, 0.09)\\n    ',
+    '0 1px 2px -2px rgba(0, 0, 0, 0.16),0 3px 6px 0 rgba(0, 0, 0, 0.12),0 5px 12px 4px rgba(0, 0, 0, 0.09)',
   boxShadowDrawerRight:
-    '\\n      -6px 0 16px 0 rgba(0, 0, 0, 0.08),\\n      -3px 0 6px -4px rgba(0, 0, 0, 0.12),\\n      -9px 0 28px 8px rgba(0, 0, 0, 0.05)\\n    ',
+    '-6px 0 16px 0 rgba(0, 0, 0, 0.08),-3px 0 6px -4px rgba(0, 0, 0, 0.12),-9px 0 28px 8px rgba(0, 0, 0, 0.05)',
   boxShadowDrawerLeft:
-    '\\n      6px 0 16px 0 rgba(0, 0, 0, 0.08),\\n      3px 0 6px -4px rgba(0, 0, 0, 0.12),\\n      9px 0 28px 8px rgba(0, 0, 0, 0.05)\\n    ',
+    '6px 0 16px 0 rgba(0, 0, 0, 0.08),3px 0 6px -4px rgba(0, 0, 0, 0.12),9px 0 28px 8px rgba(0, 0, 0, 0.05)',
   boxShadowDrawerUp:
-    '\\n      0 6px 16px 0 rgba(0, 0, 0, 0.08),\\n      0 3px 6px -4px rgba(0, 0, 0, 0.12),\\n      0 9px 28px 8px rgba(0, 0, 0, 0.05)\\n    ',
+    '0 6px 16px 0 rgba(0, 0, 0, 0.08),0 3px 6px -4px rgba(0, 0, 0, 0.12),0 9px 28px 8px rgba(0, 0, 0, 0.05)',
   boxShadowDrawerDown:
-    '\\n      0 -6px 16px 0 rgba(0, 0, 0, 0.08),\\n      0 -3px 6px -4px rgba(0, 0, 0, 0.12),\\n      0 -9px 28px 8px rgba(0, 0, 0, 0.05)\\n    ',
+    '0 -6px 16px 0 rgba(0, 0, 0, 0.08),0 -3px 6px -4px rgba(0, 0, 0, 0.12),0 -9px 28px 8px rgba(0, 0, 0, 0.05)',
   boxShadowTabsOverflowLeft: 'inset 10px 0 8px -8px rgba(0, 0, 0, 0.08)',
   boxShadowTabsOverflowRight: 'inset -10px 0 8px -8px rgba(0, 0, 0, 0.08)',
   boxShadowTabsOverflowTop: 'inset 0 10px 8px -8px rgba(0, 0, 0, 0.08)',
   boxShadowTabsOverflowBottom: 'inset 0 -10px 8px -8px rgba(0, 0, 0, 0.08)',
   _tokenKey: '19w80ff',
   _hashId: 'css-dev-only-do-not-override-i2zu9q',
-};
+} as any as GlobalToken;
 
 export const hashCode = (str: string, seed = 1) => {
   let h1 = 0xdeadbeef ^ seed,
@@ -384,23 +388,25 @@ export const hashCode = (str: string, seed = 1) => {
     h1 = Math.imul(h1 ^ ch, 2654435761);
     h2 = Math.imul(h2 ^ ch, 1597334677);
   }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  h1 =
+    Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
+    Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 =
+    Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
+    Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 };
-
-export type AliasToken = typeof defaultTheme;
 
 // @ts-ignore
 export const emptyTheme = createTheme((token) => token);
 
 export const token = {
   theme: emptyTheme,
-  token: defaultTheme,
-  hashId: `pro-${hashCode(JSON.stringify(defaultTheme))}`,
+  token: {
+    ...defaultToken,
+    ...(theme?.defaultAlgorithm?.(theme?.defaultSeed) as any),
+  } as GlobalToken,
+  hashId: `pro-${hashCode(JSON.stringify(defaultToken))}`,
 };
 
 export const useToken = () => token;
-
-export const darkAlgorithm = () => defaultTheme;
-export const defaultAlgorithm = () => defaultTheme;

@@ -1,11 +1,9 @@
 ---
 title: ProFormDependency
 order: 1
-group:
-  path: /
+atomId: ProFormDependency
 nav:
   title: component
-  path: /components
 ---
 
 # ProFormDependency - Data Linkage
@@ -42,15 +40,15 @@ The name parameter must be an array. If it is a nested structure, it can be conf
 
 ### Interdependent Forms
 
-<code src="./demos/dependency.tsx" title="ProForm.List" />
+<code src="./demos/dependency.tsx" oldtitle="ProForm.List"></code>
 
 ### Get form dependency values
 
 The following examples demonstrate the order in which dependencies are evaluated in different situations:
 
-- `<ProFormDependency>`** is not in**`<ProFormList>`: according to the dependency declared by `name`, the value is taken from the global (case 1)
-- `<ProFormDependency>`** in **`<ProFormList>`
+- `<ProFormDependency>`\*\* is not in\*\*`<ProFormList>`: according to the dependency declared by `name`, the value is taken from the global (case 1)
+- `<ProFormDependency>`\*\* in \*\*`<ProFormList>`
   - `ignoreFormListField` of `<ProFormDependency>` is `true`: according to the dependency declared by `name`, the value is taken from the global (case 2)
   - `ignoreFormListField` of `<ProFormDependency>` is `false`: according to the dependency declared by `name`, the value is taken locally (case 3)
 
-<code src="./demos/dependency2.tsx" height="1774px" title="ProForm.List" />
+<code src="./demos/dependency2.tsx" oldtitle="ProForm.List"></code>

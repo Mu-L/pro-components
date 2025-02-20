@@ -1,10 +1,9 @@
-﻿export const merge = <T>(...rest: any[]): T => {
-  const obj = {};
+﻿export const merge = <T extends Record<string, any>>(...rest: any[]): T => {
+  const obj = {} as Record<string, any>;
   const il = rest.length;
   let key;
   let i = 0;
   for (; i < il; i += 1) {
-    // eslint-disable-next-line no-restricted-syntax
     for (key in rest[i]) {
       if (rest[i].hasOwnProperty(key)) {
         if (

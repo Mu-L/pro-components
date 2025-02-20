@@ -1,16 +1,22 @@
-import type { ProCardProps } from '@ant-design/pro-card';
-import type { ActionType, ProColumnType, ProTableProps } from '@ant-design/pro-table';
+import type { CheckCardProps } from '@ant-design/pro-card';
+import { ProConfigProvider } from '@ant-design/pro-provider';
+import type {
+  ActionType,
+  ProColumnType,
+  ProTableProps,
+} from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import type { ListProps, PaginationProps } from 'antd';
 import { ConfigProvider } from 'antd';
-import type { LabelTooltipType } from 'antd/es/form/FormItemLabel';
+import type { LabelTooltipType } from 'antd/lib/form/FormItemLabel';
 import classNames from 'classnames';
 import React, { useContext, useImperativeHandle, useMemo, useRef } from 'react';
 import type { ItemProps } from './Item';
 import ListView from './ListView';
 import { useStyle } from './style/index';
 
-import 'antd/es/list/style';
+// 兼容性代码
+import 'antd/lib/list/style';
 
 export type AntdListProps<RecordType> = Omit<ListProps<RecordType>, 'rowKey'>;
 
@@ -25,7 +31,10 @@ export type ProListMeta<T> = Pick<
   | 'editable'
   | 'fieldProps'
   | 'formItemProps'
->;
+  | 'renderFormItem'
+> & {
+  key?: React.Key;
+};
 
 type ProListMetaAction<T> = ProListMeta<T> & {
   /**
@@ -51,7 +60,9 @@ export type BaseProListMetas<T = any> = {
   actions?: ProListMetaAction<T>;
 };
 export type ProListMetas<T = any> = BaseProListMetas<T> & {
-  [key in keyof T]?: IsAny<T> extends true ? ProListMetaAction<T> : ProListMeta<T>;
+  [key in keyof T]?: IsAny<T> extends true
+    ? ProListMetaAction<T>
+    : ProListMeta<T>;
 };
 
 export type GetComponentProps<RecordType> = (
@@ -59,10 +70,11 @@ export type GetComponentProps<RecordType> = (
   index: number,
 ) => React.HTMLAttributes<HTMLElement>;
 
-export type ProListProps<RecordType = any, Params = Record<string, any>, ValueType = 'text'> = Omit<
-  ProTableProps<RecordType, Params, ValueType>,
-  'size' | 'footer'
-> &
+export type ProListProps<
+  RecordType = any,
+  Params = Record<string, any>,
+  ValueType = 'text',
+> = Omit<ProTableProps<RecordType, Params, ValueType>, 'size' | 'footer'> &
   AntdListProps<RecordType> & {
     tooltip?: LabelTooltipType | string;
     metas?: ProListMetas<RecordType>;
@@ -70,7 +82,7 @@ export type ProListProps<RecordType = any, Params = Record<string, any>, ValueTy
     showExtra?: 'hover' | 'always';
     onRow?: GetComponentProps<RecordType>;
     onItem?: GetComponentProps<RecordType>;
-    itemCardProps?: ProCardProps;
+    itemCardProps?: CheckCardProps;
     rowClassName?: string | ((item: RecordType, index: number) => string);
     itemHeaderRender?: ItemProps<RecordType>['itemHeaderRender'];
     itemTitleRender?: ItemProps<RecordType>['itemTitleRender'];
@@ -80,7 +92,7 @@ export type Key = React.Key;
 
 export type TriggerEventHandler<RecordType> = (record: RecordType) => void;
 
-function ProList<
+function NoProVideProList<
   RecordType extends Record<string, any>,
   U extends Record<string, any> = Record<string, any>,
 >(props: ProListProps<RecordType, U>) {
@@ -113,7 +125,9 @@ function ProList<
 
   const actionRef = useRef<ActionType>();
 
-  useImperativeHandle(rest.actionRef, () => actionRef.current);
+  useImperativeHandle(rest.actionRef, () => actionRef.current, [
+    actionRef.current,
+  ]);
 
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
 
@@ -164,7 +178,14 @@ function ProList<
       className={classNames(prefixCls, className, listClassName)}
       columns={proTableColumns}
       rowKey={rowKey}
-      tableViewRender={({ columns, size, pagination, rowSelection, dataSource, loading }) => {
+      tableViewRender={({
+        columns,
+        size,
+        pagination,
+        rowSelection,
+        dataSource,
+        loading,
+      }) => {
         return (
           <ListView
             grid={grid}
@@ -202,8 +223,29 @@ function BaseProList<
   RecordType extends Record<string, any>,
   U extends Record<string, any> = Record<string, any>,
 >(props: ProListProps<RecordType, U>) {
-  return <ProList cardProps={false} search={false} toolBarRender={false} {...props} />;
+  return (
+    <ProConfigProvider needDeps>
+      <NoProVideProList
+        cardProps={false}
+        search={false}
+        toolBarRender={false}
+        {...props}
+      />
+    </ProConfigProvider>
+  );
 }
+
+function ProList<
+  RecordType extends Record<string, any>,
+  U extends Record<string, any> = Record<string, any>,
+>(props: ProListProps<RecordType, U>) {
+  return (
+    <ProConfigProvider needDeps>
+      <NoProVideProList {...props} />
+    </ProConfigProvider>
+  );
+}
+
 export { BaseProList, ProList };
 
 export default ProList;

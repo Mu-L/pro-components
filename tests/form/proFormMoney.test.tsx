@@ -1,14 +1,17 @@
 import ProForm, { ProFormMoney } from '@ant-design/pro-form';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
-import enGBIntl from 'antd/es/locale/en_GB';
-import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
-import { waitForComponentToPaint } from '../util';
+import enGBIntl from 'antd/lib/locale/en_GB';
+import { act } from 'react';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('💵 ProFormMoney', () => {
   it('💵 ProFormMoney value expect number', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ProForm
         onFinish={async (values) => {
           fn(values.amount);
@@ -17,18 +20,25 @@ describe('💵 ProFormMoney', () => {
         <ProFormMoney name="amount" initialValue={44.33} />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 1)).toBe('￥');
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '¥ 44.33',
+    );
+
     act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+      fireEvent.click(container.querySelector('button.ant-btn-primary')!);
     });
-    await waitForComponentToPaint(wrapper);
-    expect(fn).toHaveBeenCalledWith(44.33);
-    expect(wrapper.render()).toMatchSnapshot();
+
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(44.33);
+    });
+    expect(container).toMatchSnapshot();
   });
+
   it('💵 moneySymbol with global locale', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ConfigProvider locale={enGBIntl}>
         <ProForm
           onFinish={async (values) => {
@@ -39,19 +49,25 @@ describe('💵 ProFormMoney', () => {
         </ProForm>
       </ConfigProvider>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 1)).toBe('£');
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '£ 44.33',
+    );
+
     act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+      fireEvent.click(container.querySelector('button.ant-btn-primary')!);
     });
-    await waitForComponentToPaint(wrapper);
-    expect(fn).toHaveBeenCalledWith(44.33);
-    expect(wrapper.render()).toMatchSnapshot();
+
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(44.33);
+    });
+    expect(container).toMatchSnapshot();
   });
 
   it('💵 moneySymbol with custom locale', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ProForm
         onFinish={async (values) => {
           fn(values.amount);
@@ -60,18 +76,22 @@ describe('💵 ProFormMoney', () => {
         <ProFormMoney name="amount" initialValue={44.33} locale="en-US" />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 1)).toBe('$');
-    act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '$ 44.33',
+    );
+
+    fireEvent.click(container.querySelector('button.ant-btn-primary')!);
+
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(44.33);
     });
-    await waitForComponentToPaint(wrapper);
-    expect(fn).toHaveBeenCalledWith(44.33);
-    expect(wrapper.render()).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
   it('💵 moneySymbol with custom symbol', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ProForm
         onFinish={async (values) => {
           fn(values.amount);
@@ -80,18 +100,22 @@ describe('💵 ProFormMoney', () => {
         <ProFormMoney name="amount" initialValue={44.33} customSymbol="💰" />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 2)).toBe('💰');
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '💰 44.33',
+    );
     act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+      fireEvent.click(container.querySelector('button.ant-btn-primary')!);
     });
-    await waitForComponentToPaint(wrapper);
-    expect(fn).toHaveBeenCalledWith(44.33);
-    expect(wrapper.render()).toMatchSnapshot();
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(44.33);
+    });
+    expect(container).toMatchSnapshot();
   });
   it('💵 can not input negative', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ProForm
         onFinish={async (values) => {
           fn(values.amount);
@@ -100,26 +124,28 @@ describe('💵 ProFormMoney', () => {
         <ProFormMoney name="amount" min={0} />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 1)).toBe('');
-    act(() => {
-      wrapper.find('input#amount').simulate('change', {
-        target: {
-          value: '-55.33',
-        },
-      });
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '',
+    );
+
+    await fireEvent.change(container.querySelector('input#amount')!, {
+      target: {
+        value: '-55.33',
+      },
     });
-    await waitForComponentToPaint(wrapper, 300);
     act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+      fireEvent.click(container.querySelector('button.ant-btn-primary')!);
     });
-    await waitForComponentToPaint(wrapper, 300);
-    expect(fn).toHaveBeenCalledWith(undefined);
-    expect(wrapper.render()).toMatchSnapshot();
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(undefined);
+    });
+    expect(container).toMatchSnapshot();
   });
   it('💵 can input negative', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ProForm
         onFinish={async (values) => {
           fn(values.amount);
@@ -128,28 +154,34 @@ describe('💵 ProFormMoney', () => {
         <ProFormMoney name="amount" />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 1)).toBe('');
-    act(() => {
-      wrapper.find('input#amount').simulate('change', {
-        target: {
-          value: '-55.33',
-        },
-      });
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '',
+    );
+
+    await fireEvent.change(container.querySelector('input#amount')!, {
+      target: {
+        value: '-55.33',
+      },
     });
-    await waitForComponentToPaint(wrapper, 300);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 1)).toBe('￥');
-    act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '¥ -55.33',
+    );
+
+    fireEvent.click(container.querySelector('button.ant-btn-primary')!);
+
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(-55.33);
     });
-    await waitForComponentToPaint(wrapper, 300);
-    expect(fn).toHaveBeenCalledWith(-55.33);
-    expect(wrapper.render()).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('💵 update money precision when init', async () => {
-    const fn = jest.fn();
-    const wrapper = mount<{ amount: string }>(
+    const fn = vi.fn();
+    const { container } = render(
       <ProForm
         onFinish={async (values) => {
           fn(values.amount);
@@ -163,14 +195,17 @@ describe('💵 ProFormMoney', () => {
         />
       </ProForm>,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(String(wrapper.find('input#amount').at(0).props().value).substring(0, 2)).toBe('💰');
-    expect(String(wrapper.find('input#amount').at(0).props().value)).toBe('💰 444,444,444.33');
-    act(() => {
-      wrapper.find('button.ant-btn-primary').simulate('click');
+
+    expect(container.querySelectorAll('input#amount')[0]).toHaveAttribute(
+      'value',
+      '💰 444,444,444.33',
+    );
+
+    fireEvent.click(container.querySelector('button.ant-btn-primary')!);
+
+    await waitFor(() => {
+      expect(fn).toHaveBeenCalledWith(444444444.333333333);
     });
-    await waitForComponentToPaint(wrapper);
-    expect(fn).toHaveBeenCalledWith(444444444.333333333);
-    expect(wrapper.render()).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 });

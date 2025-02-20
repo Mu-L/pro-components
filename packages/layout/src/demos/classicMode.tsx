@@ -5,9 +5,13 @@ import {
   QuestionCircleFilled,
   SearchOutlined,
 } from '@ant-design/icons';
-import ProCard from '@ant-design/pro-card';
-import type { ProSettings } from '@ant-design/pro-layout';
-import { PageContainer, ProLayout, SettingDrawer } from '@ant-design/pro-layout';
+import type { ProSettings } from '@ant-design/pro-components';
+import {
+  PageContainer,
+  ProCard,
+  ProLayout,
+  SettingDrawer,
+} from '@ant-design/pro-components';
 import { Button, Input } from 'antd';
 import { useState } from 'react';
 import defaultProps from './_defaultProps';
@@ -49,7 +53,6 @@ export default () => {
             colorTextMenu: '#595959',
             colorTextMenuSelected: '#242424',
             colorTextMenuActive: '#242424',
-            colorBgMenuItemCollapsedHover: '#242424',
           },
         }}
         bgLayoutImgList={[
@@ -124,7 +127,7 @@ export default () => {
                     />
                   }
                   placeholder="搜索方案"
-                  bordered={false}
+                  variant="borderless"
                 />
                 <PlusCircleFilled
                   style={{

@@ -5,9 +5,13 @@ import {
   QuestionCircleFilled,
   SearchOutlined,
 } from '@ant-design/icons';
-import ProCard from '@ant-design/pro-card';
-import type { ProSettings } from '@ant-design/pro-layout';
-import { PageContainer, ProLayout } from '@ant-design/pro-layout';
+import type { ProSettings } from '@ant-design/pro-components';
+import {
+  PageContainer,
+  ProCard,
+  ProLayout,
+  compatibleBorder,
+} from '@ant-design/pro-components';
 import { Input } from 'antd';
 import { useState } from 'react';
 import defaultProps from './_defaultProps';
@@ -85,7 +89,7 @@ export default () => {
                   }}
                   prefix={<SearchOutlined />}
                   placeholder="搜索方案"
-                  bordered={false}
+                  {...compatibleBorder(false)}
                 />
                 <PlusCircleFilled
                   style={{

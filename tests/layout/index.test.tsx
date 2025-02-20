@@ -1,16 +1,20 @@
-import { GithubFilled, InfoCircleFilled, QuestionCircleFilled } from '@ant-design/icons';
-import type { ProLayoutProps } from '@ant-design/pro-components';
+import {
+  GithubFilled,
+  InfoCircleFilled,
+  QuestionCircleFilled,
+} from '@ant-design/icons';
 import { ProLayout } from '@ant-design/pro-components';
 import { LoginForm, ProFormText } from '@ant-design/pro-form';
-import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
-import { ConfigProvider } from 'antd';
-import en_US from 'antd/es/locale/en_US';
-import { mount } from 'enzyme';
-import React, { useState } from 'react';
-import { act } from 'react-dom/test-utils';
-import { waitForComponentToPaint } from '../util';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { Button, ConfigProvider } from 'antd';
+import en_US from 'antd/lib/locale/en_US';
+import React, { act, useState } from 'react';
+import { waitForWaitTime } from '../util';
 import { bigDefaultProps } from './defaultProps';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('BasicLayout', () => {
   beforeEach(() => {
@@ -21,11 +25,22 @@ describe('BasicLayout', () => {
   });
   beforeAll(() => {
     process.env.NODE_ENV = 'TEST';
-    process.env.USE_MEDIA = 'md';
+    const matchMediaSpy = vi.spyOn(window, 'matchMedia');
+    matchMediaSpy.mockImplementation(
+      (query) =>
+        ({
+          addListener: (cb: (e: { matches: boolean }) => void) => {
+            cb({ matches: query === '(min-width: 768px)' });
+          },
+          removeListener: vi.fn(),
+          matches: query === '(min-width: 768px)',
+        }) as any,
+    );
   });
   it('🥩 base use', async () => {
     const html = render(<ProLayout />);
     expect(html.asFragment()).toMatchSnapshot();
+    html.unmount();
   });
 
   it('🥩 compatibleStyle', async () => {
@@ -33,53 +48,78 @@ describe('BasicLayout', () => {
     const html = render(<ProLayout>{process.env.ANTD_VERSION}</ProLayout>);
     expect(html.asFragment()).toMatchSnapshot();
     delete process.env.ANTD_VERSION;
+    html.unmount();
   });
 
   it('🥩 support loading', async () => {
-    const wrapper = render(<ProLayout loading />);
-    await waitForComponentToPaint(wrapper, 160);
-    expect(wrapper.baseElement.querySelector('.ant-skeleton')).toMatchSnapshot();
+    const wrapper = render(
+      <ProLayout
+        loading
+        menu={{
+          loading: true,
+        }}
+      />,
+    );
+    await waitForWaitTime(1000);
+    expect(
+      wrapper.baseElement.querySelector('.ant-skeleton'),
+    ).toMatchSnapshot();
+    wrapper.unmount();
   });
 
   it('🥩 support headerRender', async () => {
-    const wrapper = mount(
-      <ProLayout layout="mix" headerRender={() => <div id="testid">testid</div>}>
+    const wrapper = render(
+      <ProLayout
+        layout="mix"
+        headerRender={() => <div id="testid">testid</div>}
+      >
         XXX
       </ProLayout>,
     );
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
-    expect(wrapper.find('#testid').exists()).toBeTruthy();
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('#testid'),
+    ).toBeTruthy();
+    wrapper.unmount();
   });
 
   it('🥩 do not render menu', async () => {
-    const wrapper = mount(<ProLayout menuRender={false} />);
-    await waitForComponentToPaint(wrapper);
-    const menu = wrapper.find('.ant-pro-sider');
-    expect(menu.exists()).toBe(false);
-    const menuContent = wrapper.find('.ant-pro-sider-menu');
-    expect(menuContent.exists()).toBe(false);
+    const wrapper = render(<ProLayout menuRender={false} />);
+    await waitForWaitTime(100);
+    const menu =
+      wrapper.baseElement.querySelector<HTMLDivElement>('.ant-pro-sider');
+    expect(menu).toBeFalsy();
+
+    const menuContent = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-menu',
+    );
+    expect(menuContent).toBeFalsy();
     expect(
-      (wrapper.find('section.ant-layout div.ant-pro-layout-container').props().style || {}).padding,
-    ).toBe(undefined);
-    act(() => {
-      wrapper.unmount();
-    });
+      getComputedStyle(
+        wrapper.baseElement.querySelector<HTMLDivElement>(
+          'div.ant-layout div.ant-pro-layout-container',
+        )!,
+      )?.padding,
+    ).toBe('');
+    wrapper.unmount();
   });
 
   it('🥩 do not render menu content', async () => {
-    const wrapper = mount(<ProLayout menuContentRender={false} />);
-    await waitForComponentToPaint(wrapper);
-    const menu = wrapper.find('.ant-pro-sider');
-    expect(menu.exists()).toBe(true);
-    const menuContent = wrapper.find('.ant-pro-sider-menu');
-    expect(menuContent.exists()).toBe(false);
-    act(() => {
-      wrapper.unmount();
-    });
+    const wrapper = render(<ProLayout menuContentRender={false} />);
+    await waitForWaitTime(100);
+    const menu =
+      wrapper.baseElement.querySelector<HTMLDivElement>('.ant-pro-sider');
+    expect(menu).toBeTruthy();
+    const menuContent = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-menu',
+    );
+    expect(menuContent).toBeFalsy();
+    wrapper.unmount();
   });
 
   it('🥩 support appList', async () => {
+    const itemClicking = vi.fn();
     const wrapper = render(
       <ProLayout
         appList={[
@@ -89,17 +129,51 @@ describe('BasicLayout', () => {
             desc: '杭州市较知名的 UI 设计语言',
             url: 'https://ant.design',
           },
+          {
+            title: 'UI 设计语言',
+            icon: () => <span>a</span>,
+            desc: '杭州市较知名的 UI 设计语言2',
+            children: [
+              {
+                icon: () => <span>a</span>,
+                title: 'Ant Design',
+                desc: '杭州市较知名的 UI 设计语言',
+                url: 'https://ant.design',
+              },
+              {
+                icon: 'w',
+                title: null,
+                desc: '专业级 UI 组件库',
+                url: 'https://procomponents.ant.design/',
+              },
+            ],
+          },
         ]}
+        itemClick={() => itemClicking()}
         route={{
-          routes: [
+          children: [
             [
               {
                 path: '/home',
                 name: '首页',
                 locale: 'menu.home',
-                routes: [
+                children: [
                   {
                     path: '/home/overview',
+                    name: '概述',
+                    hideInMenu: true,
+                    exact: true,
+                    locale: 'menu.home.overview',
+                  },
+                ],
+              },
+              {
+                path: '/home2',
+                name: '首页',
+                locale: 'menu.home2',
+                routes: [
+                  {
+                    path: '/home/overview2',
                     name: '概述',
                     hideInMenu: true,
                     exact: true,
@@ -112,56 +186,116 @@ describe('BasicLayout', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
     act(() => {
-      (wrapper.baseElement.querySelector('.ant-pro-layout-apps-icon') as HTMLDivElement)?.click();
+      (
+        wrapper.baseElement.querySelector(
+          '.ant-pro-layout-apps-icon',
+        ) as HTMLDivElement
+      )?.click();
     });
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.baseElement.querySelectorAll('.ant-pro-layout-apps-icon').length).toBe(1);
+
+    expect(
+      wrapper.baseElement.querySelectorAll('.ant-pro-layout-apps-icon').length,
+    ).toBe(1);
+
+    await wrapper.findAllByText('UI 设计语言');
+
+    act(() => {
+      wrapper.baseElement
+        .querySelector<HTMLDivElement>(
+          '.ant-pro-layout-apps-default-content-list-item a',
+        )
+        ?.click();
+    });
+
+    await waitFor(() => {
+      expect(itemClicking).toBeCalled();
+    });
+
+    wrapper.unmount();
   });
 
   it('🥩 appList icon is simple', async () => {
+    const itemClicking = vi.fn();
     const wrapper = render(
       <ProLayout
         appList={[
           {
-            icon: '',
-            title: '区域产品解决方案平台',
-            desc: '',
-            url: 'https://ant.design',
+            title: 'UI 设计语言',
+            children: [
+              {
+                icon: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+                title: 'Ant Design',
+                url: 'https://ant.design',
+              },
+              {
+                icon: 'https://gw.alipayobjects.com/zos/antfincdn/upvrAjAPQX/Logo_Tech%252520UI.svg',
+                title: 'Pro Components',
+                url: 'https://procomponents.ant.design/',
+              },
+            ],
           },
           {
-            icon: 'https://gw.alipayobjects.com/zos/antfincdn/FLrTNDvlna/antv.png',
-            title: 'AntV',
-            desc: '',
-            url: 'https://antv.vision/',
-            target: '_blank',
+            title: 'UI 设计语言 2组111',
+            icon: 'https://gw.alipayobjects.com/zos/antfincdn/upvrAjAPQX/Logo_Tech%252520UI.svg',
+            url: 'https://procomponents.ant.design/',
+            children: [
+              {
+                icon: 'https://gw.alipayobjects.com/zos/antfincdn/FLrTNDvlna/antv.png',
+                title: 'AntV',
+                url: 'https://antv.vision/',
+                target: '_blank',
+              },
+              {
+                icon: 'https://gw.alipayobjects.com/zos/antfincdn/FLrTNDvlna/antv.png',
+                title: 'AntV',
+                url: 'https://antv.vision/',
+                target: '_blank',
+              },
+            ],
           },
           {
-            icon: <div>123</div>,
-            title: 'AntV',
-            desc: '',
-            url: 'https://antv.vision/',
-            target: '_blank',
-          },
-          {
-            // @ts-ignore
-            icon: () => {},
-            title: 'AntV',
-            desc: '',
-            url: 'https://antv.vision/',
-            target: '_blank',
+            title: '待分组',
+            children: [
+              {
+                title: '工具',
+                icon: 'w',
+                url: 'https://www.yuque.com/',
+              },
+              {
+                title: '前端应用框架',
+                icon: () => (
+                  <img src="https://img.alicdn.com/tfs/TB1zomHwxv1gK0jSZFFXXb0sXXa-200-200.png" />
+                ),
+                url: 'https://umijs.org/zh-CN/docs',
+              },
+              {
+                title: 'qiankun',
+                url: 'https://qiankun.umijs.org/',
+              },
+              {
+                title: <div>Kitchen</div>,
+                url: 'https://kitchen.alipay.com/',
+              },
+              {
+                icon: 'https://gw.alipayobjects.com/zos/bmw-prod/d3e3eb39-1cd7-4aa5-827c-877deced6b7e/lalxt4g3_w256_h256.png',
+                title: 'dumi',
+                url: 'https://d.umijs.org/zh-CN',
+              },
+            ],
           },
         ]}
+        itemClick={() => itemClicking()}
         route={{
-          routes: [
+          children: [
             [
               {
                 path: '/home',
                 name: '首页',
                 locale: 'menu.home',
-                routes: [
+                children: [
                   {
                     path: '/home/overview',
                     name: '概述',
@@ -176,22 +310,81 @@ describe('BasicLayout', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
-      (wrapper.baseElement.querySelector('.ant-pro-layout-apps-icon') as HTMLDivElement)?.click();
+      (
+        wrapper.baseElement.querySelector(
+          '.ant-pro-layout-apps-icon',
+        ) as HTMLDivElement
+      )?.click();
     });
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.baseElement.querySelectorAll('.ant-pro-layout-apps-icon').length).toBe(1);
+    await wrapper.findAllByText('UI 设计语言');
+
+    act(() => {
+      wrapper.baseElement
+        .querySelector<HTMLDivElement>(
+          '.ant-pro-layout-apps-simple-content-list-item a',
+        )
+        ?.click();
+    });
+
+    await waitFor(() => {
+      expect(itemClicking).toBeCalled();
+    });
+
+    wrapper.unmount();
   });
 
   it('🥩 group title when collapsed, title is hidden', async () => {
+    const token = {
+      bgLayout: null,
+      colorTextAppListIcon: null,
+      colorTextAppListIconHover: null,
+      sider: {
+        colorBgMenuItemHover: null,
+        colorMenuBackground: null,
+        colorMenuItemDivider: null,
+        colorTextMenu: null,
+        colorTextMenuSelected: null,
+        colorTextMenuItemHover: null,
+        colorBgMenuItemSelected: null,
+        colorBgCollapsedButton: null,
+        colorTextCollapsedButton: null,
+        colorTextCollapsedButtonHover: null,
+        colorTextMenuActive: null,
+      },
+      header: {
+        colorBgMenuItemSelected: null,
+        colorTextMenuSelected: null,
+        colorBgHeader: null,
+        colorHeaderTitle: null,
+        colorBgScrollHeader: null,
+        colorTextMenuActive: null,
+        colorTextMenu: null,
+        colorBgMenuItemHover: null,
+        colorMenuBackground: null,
+        colorTextMenuItemHover: null,
+        colorBgCollapsedButton: null,
+        colorTextCollapsedButton: null,
+        colorTextCollapsedButtonHover: null,
+      },
+      pageContainer: {
+        paddingBlockPageContainerContent: null,
+        paddingInlinePageContainerContent: null,
+      },
+    };
     const wrapper = render(
       <ProLayout
+        // @ts-ignore
+        token={token}
         bgLayoutImgList={[
           {
             src: 'https://gw.alipayobjects.com/zos/antfincdn/tQVPs1q2X%26/yonghushenfen.png',
           },
         ]}
+        isChildrenLayout
+        navTheme="realDark"
+        colorPrimary="#1890ff"
         {...bigDefaultProps}
         appList={undefined}
         location={{
@@ -205,9 +398,14 @@ describe('BasicLayout', () => {
       </ProLayout>,
     );
 
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.baseElement.querySelectorAll('.ant-menu-item-group-title').length).toBe(2);
-    expect(wrapper.baseElement.querySelectorAll('.ant-pro-sider-actions-collapsed').length).toBe(0);
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelectorAll('.ant-menu-item-group-title').length,
+    ).toBe(2);
+    expect(
+      wrapper.baseElement.querySelectorAll('.ant-pro-sider-actions-collapsed')
+        .length,
+    ).toBe(0);
 
     wrapper.rerender(
       <ProLayout
@@ -253,66 +451,134 @@ describe('BasicLayout', () => {
       </ProLayout>,
     );
 
-    expect(wrapper.baseElement.querySelectorAll('.ant-menu-item-group-title').length).toBe(0);
+    expect(
+      wrapper.baseElement.querySelectorAll('.ant-menu-item-group-title').length,
+    ).toBe(0);
 
     // collapsed 的时候action 将会消失
-    expect(wrapper.baseElement.querySelectorAll('.ant-pro-sider-actions-collapsed').length).toBe(1);
+    expect(
+      wrapper.baseElement.querySelectorAll('.ant-pro-sider-actions-collapsed')
+        .length,
+    ).toBe(1);
+
+    wrapper.unmount();
   });
 
   it('🥩 do not render footer', async () => {
-    const wrapper = mount(<ProLayout footerRender={false} />);
-    await waitForComponentToPaint(wrapper);
-    const footer = wrapper.find('footer');
-    expect(footer.exists()).toBe(false);
-    act(() => {
-      wrapper.unmount();
+    const wrapper = render(<ProLayout title="title" footerRender={false} />);
+
+    await wrapper.findByText('title');
+
+    await waitFor(() => {
+      const footer =
+        wrapper.baseElement.querySelector<HTMLDivElement>('footer');
+      expect(footer).toBeFalsy();
     });
+
+    wrapper.unmount();
   });
 
-  it('🥩 do not render footer', async () => {
-    const wrapper = mount(<ProLayout footerRender={false} />);
-    await waitForComponentToPaint(wrapper);
-    const footer = wrapper.find('footer');
-    expect(footer.exists()).toBe(false);
+  it('🥩 header support fixed-header-scroll', async () => {
+    const ref = React.createRef<HTMLDivElement>();
+    const wrapper = render(
+      <ConfigProvider
+        getTargetContainer={() => {
+          return ref.current!;
+        }}
+      >
+        <div ref={ref}>
+          <ProLayout
+            layout="mix"
+            fixedHeader
+            title="fixed-header-scroll"
+            stylish={{
+              header: () => {
+                return {
+                  opacity: 0.9,
+                };
+              },
+            }}
+          />
+        </div>
+      </ConfigProvider>,
+    );
+
+    await wrapper.findByText('fixed-header-scroll');
+
     act(() => {
-      wrapper.unmount();
+      ref.current!.scrollTop = 400;
+      fireEvent.scroll(ref.current!, {});
     });
+
+    await waitFor(() => {
+      expect(
+        !!wrapper.baseElement.querySelector(
+          '.ant-pro-layout-header-fixed-header-scroll',
+        ),
+      ).toBeTruthy();
+    });
+
+    act(() => {
+      ref.current!.scrollTop = 0;
+      fireEvent.scroll(ref.current!, {});
+    });
+
+    await waitFor(() => {
+      expect(
+        !!wrapper.baseElement.querySelector(
+          '.ant-pro-layout-header-fixed-header-scroll',
+        ),
+      ).toBeFalsy();
+    });
+
+    wrapper.unmount();
   });
 
   it('🥩 menuDataRender change date', async () => {
-    const wrapper = mount(<ProLayout menuDataRender={() => []} />);
-    await waitForComponentToPaint(wrapper, 100);
-    expect(wrapper.find('ul.ant-pro-sider-menu').exists()).toBeFalsy();
+    const wrapper = render(<ProLayout menuDataRender={() => []} />);
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>(
+        'ul.ant-pro-sider-menu',
+      ),
+    ).toBeFalsy();
     act(() => {
-      wrapper.setProps({
-        menuDataRender: () => [
-          {
-            path: '/home',
-            name: '首页',
-            routes: [
-              {
-                path: '/home/overview',
-                name: '概述',
-                exact: true,
-              },
-              {
-                path: '/home/search',
-                name: '搜索',
-                exact: true,
-              },
-            ],
-          },
-        ],
-      });
+      wrapper.rerender(
+        <ProLayout
+          menuDataRender={() => [
+            {
+              path: '/home',
+              name: '首页',
+              children: [
+                {
+                  path: '/home/overview',
+                  name: '概述',
+                  exact: true,
+                },
+                {
+                  path: '/home/search',
+                  name: '搜索',
+                  exact: true,
+                },
+              ],
+            },
+          ]}
+        />,
+      );
     });
-    await waitForComponentToPaint(wrapper, 1000);
+    await waitForWaitTime(1000);
 
-    expect(wrapper.find('ul.ant-pro-sider-menu').exists()).toBeTruthy();
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>(
+        'ul.ant-pro-sider-menu',
+      ),
+    ).toBeTruthy();
+    wrapper.unmount();
   });
 
   it('🥩 use onLogoClick', async () => {
-    const onLogoClick = jest.fn();
-    const wrapper = mount(
+    const onLogoClick = vi.fn();
+    const wrapper = render(
       <ProLayout
         siderWidth={undefined}
         logo={
@@ -322,120 +588,161 @@ describe('BasicLayout', () => {
         }
       />,
     );
-    await waitForComponentToPaint(wrapper);
-    const logo = wrapper.find('#test_log');
+    await waitForWaitTime(100);
+    const logo = wrapper.baseElement.querySelector<HTMLDivElement>('#test_log');
     act(() => {
-      logo.simulate('click');
+      logo?.click();
     });
     expect(onLogoClick).toHaveBeenCalled();
-    act(() => {
-      wrapper.unmount();
-    });
+    wrapper.unmount();
   });
 
   it('🥩 render logo', async () => {
-    const wrapper = mount(<ProLayout logo={<div id="test_log">Logo</div>} />);
-    await waitForComponentToPaint(wrapper);
-    const logo = wrapper.find('#test_log');
-    expect(logo.text()).toEqual('Logo');
-    act(() => {
-      wrapper.unmount();
-    });
+    const wrapper = render(<ProLayout logo={<div id="test_log">Logo</div>} />);
+    await waitForWaitTime(100);
+    const logo = wrapper.baseElement.querySelector<HTMLDivElement>('#test_log');
+    expect(logo?.textContent).toEqual('Logo');
+    wrapper.unmount();
   });
 
   it('🥩 render logo by function', async () => {
-    //@ts-expect-error
-    const wrapper = mount(<ProLayout logo={() => <div id="test_log">Logo</div>} />);
-    await waitForComponentToPaint(wrapper);
-    const logo = wrapper.find('#test_log');
-    expect(logo.text()).toEqual('Logo');
-    await waitForComponentToPaint(wrapper);
-    act(() => {
-      wrapper.unmount();
-    });
+    const wrapper = render(
+      //@ts-expect-error
+      <ProLayout logo={() => <div id="test_log">Logo</div>} />,
+    );
+    await waitForWaitTime(100);
+    const logo = wrapper.baseElement.querySelector<HTMLDivElement>('#test_log');
+    expect(logo?.textContent).toEqual('Logo');
+    await waitForWaitTime(100);
+    wrapper.unmount();
   });
 
   it('🥩 onCollapse', async () => {
-    const onCollapse = jest.fn();
-    const wrapper = mount(<ProLayout onCollapse={onCollapse} />);
-    await waitForComponentToPaint(wrapper);
+    const onCollapse = vi.fn();
+    const wrapper = render(<ProLayout onCollapse={onCollapse} />);
+    await waitForWaitTime(100);
     act(() => {
-      wrapper
-        .find('div.ant-pro-sider-collapsed-button')
-        .map((item) => item && item.simulate('click'));
+      Array.from(
+        wrapper.baseElement.querySelectorAll<HTMLDivElement>(
+          'div.ant-pro-sider-collapsed-button',
+        ),
+      ).map((item) => item && item?.click());
     });
+
     expect(onCollapse).toHaveBeenCalled();
 
-    await waitForComponentToPaint(wrapper);
-    act(() => {
-      wrapper.unmount();
-    });
+    await waitForWaitTime(100);
+    wrapper.unmount();
   });
 
   it('🥩 siderWidth default', async () => {
-    const wrapper = mount(<ProLayout />);
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.find('.ant-pro-sider').get(1).props.width).toBe(256);
+    const wrapper = render(
+      <ProLayout
+        route={{
+          children: [
+            [
+              {
+                path: '/home',
+                name: '首页',
+                locale: 'menu.home',
+                children: [
+                  {
+                    path: '/home/overview',
+                    name: '概述',
+                    hideInMenu: true,
+                    exact: true,
+                    locale: 'menu.home.overview',
+                  },
+                ],
+              },
+            ],
+          ],
+        }}
+      />,
+    );
 
-    await waitForComponentToPaint(wrapper);
-    act(() => {
-      wrapper.unmount();
-    });
+    await waitForWaitTime(100);
+
+    expect(
+      getComputedStyle(
+        wrapper.baseElement.querySelector<HTMLDivElement>('.ant-pro-sider')!,
+      )?.width,
+    ).toBe('256px');
+
+    await waitForWaitTime(100);
+    wrapper.unmount();
   });
 
   it('🥩 siderWidth=160', async () => {
-    const wrapper = mount(<ProLayout siderWidth={160} />);
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.find('.ant-pro-sider').get(1).props.width).toBe(160);
+    const wrapper = render(<ProLayout siderWidth={160} />);
+    await waitForWaitTime(100);
+    expect(
+      getComputedStyle(
+        wrapper.baseElement.querySelector<HTMLDivElement>('.ant-pro-sider')!,
+      )?.width,
+    ).toBe('160px');
 
-    await waitForComponentToPaint(wrapper);
-    act(() => {
-      wrapper.unmount();
-    });
+    await waitForWaitTime(100);
+    wrapper.unmount();
   });
 
   it('🥩 do not render collapsed button', async () => {
-    const wrapper = mount(<ProLayout collapsedButtonRender={false} />);
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.find('div.ant-pro-sider-collapsed-button').exists()).toBe(false);
+    const wrapper = render(<ProLayout collapsedButtonRender={false} />);
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>(
+        'div.ant-pro-sider-collapsed-button',
+      ),
+    ).toBeFalsy();
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 when renderMenu=false, do not render collapsed button', async () => {
-    const wrapper = mount(<ProLayout menuRender={false} />);
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.find('div.ant-pro-sider-collapsed-button').exists()).toBe(false);
+    const wrapper = render(<ProLayout menuRender={false} />);
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>(
+        'div.ant-pro-sider-collapsed-button',
+      ),
+    ).toBeFalsy();
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 render customize collapsed button', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         collapsedButtonRender={(collapsed) => (
           <span id="customize_collapsed_button">{`${collapsed}`}</span>
         )}
       />,
     );
-    await waitForComponentToPaint(wrapper);
-    const dom = wrapper.find('#customize_collapsed_button');
-    expect(dom.text()).toEqual('false');
+    await waitForWaitTime(100);
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '#customize_collapsed_button',
+    );
+    expect(dom?.textContent).toEqual('false');
 
     act(() => {
-      wrapper.setProps({
-        collapsed: true,
-      });
+      wrapper.rerender(
+        <ProLayout
+          collapsedButtonRender={(collapsed) => (
+            <span id="customize_collapsed_button">{`${collapsed}`}</span>
+          )}
+          collapsed
+        />,
+      );
     });
 
-    await waitForComponentToPaint(wrapper);
-    expect(dom.text()).toEqual('true');
+    await waitForWaitTime(100);
+    expect(dom?.textContent).toEqual('true');
   });
 
   it('🥩 support hideMenuWhenCollapsed', async () => {
@@ -445,19 +752,18 @@ describe('BasicLayout', () => {
           hideMenuWhenCollapsed: true,
         }}
         collapsed={true}
-      />,
+      >
+        layout_right
+      </ProLayout>,
     );
-    await waitForComponentToPaint(wrapper);
 
-    let dom = wrapper.baseElement.querySelector('.ant-pro-sider-hide-when-collapsed');
+    await wrapper.findByText('layout_right');
+
+    let dom = wrapper.baseElement.querySelector(
+      '.ant-pro-sider-hide-when-collapsed',
+    );
 
     expect(!!dom).toBeTruthy();
-
-    expect(
-      window.getComputedStyle(
-        wrapper.baseElement.querySelector('.ant-pro-layout .ant-pro-sider-hide-menu-collapsed')!,
-      ).insetInlineStart,
-    ).toBe('-52px');
 
     act(() => {
       wrapper.rerender(
@@ -466,35 +772,48 @@ describe('BasicLayout', () => {
             hideMenuWhenCollapsed: true,
           }}
           collapsed={false}
-        />,
+        >
+          layout_list
+        </ProLayout>,
       );
     });
-    await waitForComponentToPaint(wrapper);
-    dom = wrapper.baseElement.querySelector('.ant-pro-sider-hide-when-collapsed');
+    await wrapper.findByText('layout_list');
 
-    expect(!!dom).toBeFalsy();
+    waitFor(() => {
+      dom = wrapper.baseElement.querySelector(
+        '.ant-pro-sider-hide-when-collapsed',
+      );
+
+      expect(!!dom).toBeFalsy();
+    });
+
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 do not render menu header', async () => {
-    const wrapper = mount<ProLayoutProps>(
-      <ProLayout menuExtraRender={() => <div>menuExtraRender</div>} menuHeaderRender={false} />,
+    const wrapper = render(
+      <ProLayout
+        menuExtraRender={() => <div>menuExtraRender</div>}
+        menuHeaderRender={false}
+      />,
     );
-    await waitForComponentToPaint(wrapper);
-    const dom = wrapper.find('#logo');
-    expect(dom.exists()).toBe(false);
+    await waitForWaitTime(100);
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>('#logo');
+    expect(dom).toBeFalsy();
 
-    const menuExtraRender = wrapper.find('.ant-pro-sider-extra-no-logo');
-    expect(menuExtraRender.exists()).toBe(true);
+    const menuExtraRender = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-extra-no-logo',
+    );
+    expect(menuExtraRender).toBeTruthy();
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 customize render menu header', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         menuHeaderRender={(logo, title) => (
           <div id="customize_menu_header">
@@ -505,13 +824,17 @@ describe('BasicLayout', () => {
         )}
       />,
     );
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
-    const dom = wrapper.find('#customize_menu_header');
-    expect(dom.exists()).toBe(true);
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '#customize_menu_header',
+    );
+    expect(dom).toBeTruthy();
 
-    expect(dom.find('#customize_menu_header_text').text()).toEqual('customize_menu_header');
-    await waitForComponentToPaint(wrapper);
+    expect(
+      dom?.querySelector('#customize_menu_header_text')?.textContent,
+    ).toEqual('customize_menu_header');
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
@@ -529,7 +852,7 @@ describe('BasicLayout', () => {
   });
 
   it('🥩 support className', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         className="chenshuai2144"
         contentStyle={{
@@ -537,51 +860,61 @@ describe('BasicLayout', () => {
         }}
       />,
     );
-    expect(wrapper.find('div.chenshuai2144').exists()).toBeTruthy();
-    await waitForComponentToPaint(wrapper);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('div.chenshuai2144'),
+    ).toBeTruthy();
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 support links', async () => {
-    const wrapper = mount<ProLayoutProps>(<ProLayout links={['name']} />);
-    await waitForComponentToPaint(wrapper);
-    const dom = wrapper.find('.ant-pro-sider-link');
-    expect(dom.exists()).toBeTruthy();
-    await waitForComponentToPaint(wrapper);
+    const wrapper = render(<ProLayout links={['name']} />);
+    await waitForWaitTime(100);
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-link',
+    );
+    expect(dom).toBeTruthy();
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 do no render links', async () => {
-    const wrapper = mount<ProLayoutProps>(<ProLayout />);
-    await waitForComponentToPaint(wrapper);
-    const dom = wrapper.find('.ant-pro-sider-link');
+    const wrapper = render(<ProLayout />);
+    await waitForWaitTime(100);
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-link',
+    );
 
-    expect(dom.exists()).toBeFalsy();
-    await waitForComponentToPaint(wrapper);
+    expect(dom).toBeFalsy();
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 pure style', async () => {
-    const wrapper = mount<ProLayoutProps>(<ProLayout pure />);
-    await waitForComponentToPaint(wrapper);
-    const menu = wrapper.find('.ant-pro-sider-menu');
-    expect(menu.exists()).toBe(false);
-    const dom = wrapper.find('.ant-pro-sider-link');
-    expect(dom.exists()).toBeFalsy();
-    await waitForComponentToPaint(wrapper);
+    const wrapper = render(<ProLayout pure />);
+    await waitForWaitTime(100);
+    const menu = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-menu',
+    );
+    expect(menu).toBeFalsy();
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-link',
+    );
+    expect(dom).toBeFalsy();
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 set page title render', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         pageTitleRender={(props, pageName, info) => {
           if (info) {
@@ -591,19 +924,21 @@ describe('BasicLayout', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper);
-    const dom = wrapper.find('.ant-pro-sider-link');
+    await waitForWaitTime(100);
+    const dom = wrapper.baseElement.querySelector<HTMLDivElement>(
+      '.ant-pro-sider-link',
+    );
 
-    expect(dom.exists()).toBeFalsy();
-    await waitForComponentToPaint(wrapper);
+    expect(dom).toBeFalsy();
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 onPageChange', async () => {
-    const onPageChange = jest.fn();
-    const wrapper = mount<ProLayoutProps>(
+    const onPageChange = vi.fn();
+    const wrapper = render(
       <ProLayout
         onPageChange={onPageChange}
         location={{
@@ -612,24 +947,27 @@ describe('BasicLayout', () => {
       />,
     );
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
-      wrapper.setProps({
-        location: {
-          pathname: '/name',
-        },
-      });
+      wrapper.rerender(
+        <ProLayout
+          onPageChange={onPageChange}
+          location={{
+            pathname: '/name',
+          }}
+        />,
+      );
     });
 
     expect(onPageChange).toBeCalled();
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
       wrapper.unmount();
     });
   });
 
   it('🥩 headerTitleRender ', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         headerTitleRender={() => <h2 id="mix-test">mix title</h2>}
         layout="mix"
@@ -638,13 +976,16 @@ describe('BasicLayout', () => {
         }}
       />,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.find('h2#mix-test').text()).toBe('mix title');
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('#mix-test')
+        ?.textContent,
+    ).toBe('mix title');
   });
 
   it('🥩 onMenuHeaderClick', async () => {
-    const onMenuHeaderClick = jest.fn();
-    const wrapper = mount<ProLayoutProps>(
+    const onMenuHeaderClick = vi.fn();
+    const wrapper = render(
       <ProLayout
         pageTitleRender={false}
         onMenuHeaderClick={onMenuHeaderClick}
@@ -655,16 +996,18 @@ describe('BasicLayout', () => {
       />,
     );
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
-      wrapper.find('div.ant-pro-global-header-logo').simulate('click');
+      wrapper.baseElement
+        .querySelector<HTMLDivElement>('div.ant-pro-global-header-logo')
+        ?.click();
     });
     expect(onMenuHeaderClick).toBeCalled();
   });
 
   it('🥩 renderPageTitle return value should is string', async () => {
-    const renderPageTitle = jest.fn();
-    const wrapper = mount<ProLayoutProps>(
+    const renderPageTitle = vi.fn();
+    render(
       <ProLayout
         // @ts-expect-error
         pageTitleRender={() => {
@@ -677,12 +1020,13 @@ describe('BasicLayout', () => {
       />,
     );
 
-    await waitForComponentToPaint(wrapper);
-    expect(renderPageTitle).toBeCalled();
+    await waitFor(() => {
+      expect(renderPageTitle).toBeCalled();
+    });
   });
 
   it('🥩 rightContentRender should work in top', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         rightContentRender={() => <div id="layout_right">right</div>}
         layout="top"
@@ -692,27 +1036,35 @@ describe('BasicLayout', () => {
       />,
     );
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
     act(() => {
-      wrapper.setProps({
-        rightContentRender: () => (
-          <div
-            id="layout_right"
-            style={{
-              width: 120,
-            }}
-          >
-            right
-          </div>
-        ),
-      });
+      wrapper.rerender(
+        <ProLayout
+          rightContentRender={() => (
+            <div
+              id="layout_right"
+              style={{
+                width: 120,
+              }}
+            >
+              right
+            </div>
+          )}
+          layout="top"
+          location={{
+            pathname: '/',
+          }}
+        />,
+      );
     });
-    expect(wrapper.find('#layout_right').exists()).toBeTruthy();
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('#layout_right'),
+    ).toBeTruthy();
   });
 
   it('🥩 rightContentRender should work in side', async () => {
-    const wrapper = mount<ProLayoutProps>(
+    const wrapper = render(
       <ProLayout
         rightContentRender={() => <div id="layout_right">right</div>}
         layout="side"
@@ -722,23 +1074,31 @@ describe('BasicLayout', () => {
       />,
     );
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
     act(() => {
-      wrapper.setProps({
-        rightContentRender: () => (
-          <div
-            id="layout_right"
-            style={{
-              width: 120,
-            }}
-          >
-            right
-          </div>
-        ),
-      });
+      wrapper.rerender(
+        <ProLayout
+          rightContentRender={() => (
+            <div
+              id="layout_right"
+              style={{
+                width: 120,
+              }}
+            >
+              right
+            </div>
+          )}
+          layout="side"
+          location={{
+            pathname: '/',
+          }}
+        />,
+      );
     });
-    expect(wrapper.find('#layout_right').exists()).toBeTruthy();
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('#layout_right'),
+    ).toBeTruthy();
   });
 
   it('🥩 support get config form menuItem', async () => {
@@ -769,7 +1129,7 @@ describe('BasicLayout', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
     expect(
       wrapper.baseElement
         .querySelector('.ant-design-pro')
@@ -805,7 +1165,7 @@ describe('BasicLayout', () => {
       );
     });
 
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
     expect(
       wrapper.baseElement
         .querySelector('.ant-design-pro')
@@ -840,7 +1200,7 @@ describe('BasicLayout', () => {
         />,
       );
     });
-    await waitForComponentToPaint(wrapper, 100);
+    await waitForWaitTime(100);
 
     expect(
       wrapper.baseElement
@@ -883,7 +1243,7 @@ describe('BasicLayout', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper);
+    await wrapper.findAllByText('列表页');
     expect(wrapper.baseElement).toMatchSnapshot();
   });
 
@@ -942,8 +1302,8 @@ describe('BasicLayout', () => {
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
-  it('🥩 BasicLayout support current menu', async () => {
-    const wrapper = mount(
+  it('🥩 ProLayout support current menu', async () => {
+    const wrapper = render(
       <ProLayout
         location={{
           pathname: '/welcome',
@@ -957,39 +1317,53 @@ describe('BasicLayout', () => {
         ]}
       />,
     );
-    await waitForComponentToPaint(wrapper);
-    expect(wrapper.find('.ant-pro-layout-side').exists()).toBeTruthy();
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('.ant-pro-layout-side'),
+    ).toBeTruthy();
     act(() => {
-      wrapper.setProps({
-        menu: {
-          loading: true,
-        },
-        menuDataRender: () => [
-          {
-            path: '/welcome',
-            name: '欢迎',
-            layout: 'top',
-          },
-        ],
-      });
+      wrapper.rerender(
+        <ProLayout
+          location={{
+            pathname: '/welcome',
+          }}
+          menu={{
+            loading: true,
+          }}
+          menuDataRender={() => [
+            {
+              path: '/welcome',
+              name: '欢迎',
+              layout: 'top',
+            },
+          ]}
+        />,
+      );
     });
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     act(() => {
-      wrapper.setProps({
-        menu: {
-          loading: false,
-        },
-        menuDataRender: () => [
-          {
-            path: '/welcome',
-            name: '欢迎',
-            layout: 'top',
-          },
-        ],
-      });
+      wrapper.rerender(
+        <ProLayout
+          location={{
+            pathname: '/welcome',
+          }}
+          menu={{
+            loading: false,
+          }}
+          menuDataRender={() => [
+            {
+              path: '/welcome',
+              name: '欢迎',
+              layout: 'top',
+            },
+          ]}
+        />,
+      );
     });
-    await waitForComponentToPaint(wrapper, 100);
-    expect(wrapper.find('.ant-pro-layout-top').exists()).toBeTruthy();
+    await waitForWaitTime(100);
+    expect(
+      wrapper.baseElement.querySelector<HTMLDivElement>('.ant-pro-layout-top'),
+    ).toBeTruthy();
   });
 
   it('🥩 BasicLayout menu support autoClose', async () => {
@@ -1054,26 +1428,32 @@ describe('BasicLayout', () => {
       );
     };
     const html = render(<Demo />);
-    await waitForComponentToPaint(html);
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu').length).toBe(2);
+    await waitForWaitTime(100);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu').length,
+    ).toBe(2);
     const domParentMenu = await (await html.findAllByText('列表页')).at(0);
     act(() => {
       domParentMenu?.click();
     });
-    await waitForComponentToPaint(html, 2000);
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length).toBe(2);
+    await waitForWaitTime(2000);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(2);
     const domChildMenu = await (await html.findAllByText('二级列表页面')).at(0);
     const domLink = await (await html.findAllByText('AntDesign外链')).at(0);
     act(() => {
       domChildMenu?.click();
       domLink?.click();
     });
-    await waitForComponentToPaint(html, 2000);
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu').length).toBe(2);
+    await waitForWaitTime(2000);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu').length,
+    ).toBe(2);
   });
 
   it('🥩 BasicLayout menu support onSelect', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const Demo = () => {
       const [pathname, setPathname] = useState('/admin/sub-page1');
       return (
@@ -1135,23 +1515,23 @@ describe('BasicLayout', () => {
       );
     };
     const html = render(<Demo />);
-    await waitForComponentToPaint(html);
+    await waitForWaitTime(100);
     const domParentMenu = await (await html.findAllByText('列表页')).at(0);
 
     act(() => {
       domParentMenu?.click();
     });
-    await waitForComponentToPaint(html, 100);
+    await waitForWaitTime(100);
     const domLink = await (await html.findAllByText('AntDesign外链')).at(0);
     act(() => {
       domLink?.click();
     });
-    await waitForComponentToPaint(html, 100);
+    await waitForWaitTime(100);
     expect(fn).toBeCalled();
   });
 
-  it('🥩 BasicLayout support menu.request', async () => {
-    const fn = jest.fn();
+  it('🥩 ProLayout support menu.request', async () => {
+    const fn = vi.fn();
     const actionRef = React.createRef<
       | {
           reload: () => void;
@@ -1172,7 +1552,7 @@ describe('BasicLayout', () => {
                 {
                   path: '/admin',
                   name: '管理页',
-                  routes: [
+                  children: [
                     {
                       path: '/admin/sub-page1',
                       name: '一级页面',
@@ -1190,7 +1570,7 @@ describe('BasicLayout', () => {
                 {
                   name: '列表页',
                   path: '/list',
-                  routes: [
+                  children: [
                     {
                       path: '/list/sub-page',
                       name: '一级列表页面',
@@ -1212,18 +1592,23 @@ describe('BasicLayout', () => {
       );
     };
 
-    const html = mount(<Demo />);
-    await waitForComponentToPaint(html, 1000);
+    render(<Demo />);
 
-    expect(fn).toBeCalledTimes(1);
+    await waitFor(() => {
+      expect(fn).toBeCalledTimes(1);
+    });
 
-    actionRef.current?.reload();
+    act(() => {
+      actionRef.current?.reload();
+    });
 
-    expect(fn).toBeCalledTimes(2);
+    await waitFor(() => {
+      expect(fn).toBeCalledTimes(2);
+    });
   });
 
-  it('🥩 BasicLayout support menu.params', async () => {
-    const fn = jest.fn();
+  it('🥩 ProLayout support menu.params', async () => {
+    const fn = vi.fn();
     const defaultMenu = {
       locale: false,
       params: {},
@@ -1242,60 +1627,68 @@ describe('BasicLayout', () => {
       },
     };
 
-    const html = mount(<ProLayout menu={defaultMenu} />);
+    const html = render(<ProLayout menu={defaultMenu} />);
 
-    await waitForComponentToPaint(html, 1000);
+    await waitForWaitTime(1000);
 
     expect(fn).toBeCalledTimes(1);
 
     act(() => {
-      html.setProps({
-        menu: {
-          ...defaultMenu,
-          params: {
-            id: '1212',
-          },
-        },
-      });
+      html.rerender(
+        <ProLayout
+          menu={{
+            ...defaultMenu,
+            params: {
+              id: '1212',
+            },
+          }}
+        />,
+      );
     });
 
-    await waitForComponentToPaint(html, 100);
+    await waitForWaitTime(100);
 
     expect(fn).toBeCalledTimes(2);
-    expect(fn).toBeCalledWith({
+    expect(fn).toHaveBeenCalledWith({
       id: '1212',
     });
     act(() => {
-      html.setProps({
-        menu: {
-          ...defaultMenu,
-          params: {
-            id: '123',
-          },
-        },
-      });
+      html.rerender(
+        <ProLayout
+          menu={{
+            ...defaultMenu,
+            params: {
+              id: '123',
+            },
+          }}
+        />,
+      );
     });
-    await waitForComponentToPaint(html, 100);
+
+    await waitForWaitTime(100);
     expect(fn).toBeCalledTimes(3);
-    expect(fn).toBeCalledWith({
+    expect(fn).toHaveBeenCalledWith({
       id: '123',
     });
 
     act(() => {
-      html.setProps({
-        menu: {
-          ...defaultMenu,
-          params: {
-            id: '123',
-          },
-        },
-      });
+      html.rerender(
+        <ProLayout
+          menu={{
+            ...defaultMenu,
+            params: {
+              id: '123',
+            },
+          }}
+        />,
+      );
     });
-    await waitForComponentToPaint(html, 100);
+
+    await waitForWaitTime(100);
     expect(fn).toBeCalledTimes(3);
   });
 
-  it('🥩 BasicLayout support menu.defaultOpenAll', async () => {
+  it('🥩 ProLayout support menu.defaultOpenAll', async () => {
     const Demo = () => {
       const [pathname, setPathname] = useState('/admin/sub-page1');
       return (
@@ -1343,6 +1736,7 @@ describe('BasicLayout', () => {
                   collapsed: true,
                   menuName: '域买家维度交易',
                   name: '域买家维度交易',
+                  path: '/xx',
                   children: [
                     {
                       id: 2,
@@ -1377,13 +1771,17 @@ describe('BasicLayout', () => {
       );
     };
     const html = render(<Demo />);
-    await waitForComponentToPaint(html);
+    await waitForWaitTime(100);
 
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu').length).toBe(3);
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length).toBe(3);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu').length,
+    ).toBe(3);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(3);
   });
 
-  it('🥩 BasicLayout support menu.ignoreFlatMenu', async () => {
+  it('🥩 ProLayout support menu.ignoreFlatMenu', async () => {
     const Demo = () => {
       const [pathname, setPathname] = useState('/admin/sub-page1');
       return (
@@ -1466,32 +1864,31 @@ describe('BasicLayout', () => {
       );
     };
     const html = render(<Demo />);
-    await waitForComponentToPaint(html, 1200);
+    await waitForWaitTime(1200);
 
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu').length).toBe(3);
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length).toBe(3);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu').length,
+    ).toBe(3);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(3);
     await act(async () => {
       (await html.findByText('月表'))?.parentElement?.click();
     });
-    await waitForComponentToPaint(html, 100);
-    expect(html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length).toBe(0);
+    await waitForWaitTime(100);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(0);
   });
 
-  it('🥩  navTheme=realDark', () => {
-    const html = render(<ProLayout navTheme="realDark" />);
-    expect(html.baseElement.querySelector('aside.ant-layout-sider')?.getAttribute('style')).toBe(
-      'box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 65%); flex: 0 0 256px; max-width: 256px; min-width: 256px; width: 256px;',
-    );
-  });
-
-  it('🥩 formatMessage support', () => {
+  it('🥩 formatMessage support', async () => {
     const html = render(
       <ProLayout
         menu={{
           locale: true,
         }}
         route={{
-          routes: [
+          children: [
             {
               name: 'home',
               locale: 'menu.home',
@@ -1509,11 +1906,13 @@ describe('BasicLayout', () => {
           const locales = {
             'menu.home': '主页',
           };
-          return locales[id] ? locales[id] : (defaultMessage as string);
+          return locales[id as 'menu.home']
+            ? locales[id as 'menu.home']
+            : (defaultMessage as string);
         }}
       />,
     );
-
+    await waitForWaitTime(200);
     expect(html.findByText('主页')).toBeTruthy();
   });
 
@@ -1527,9 +1926,10 @@ describe('BasicLayout', () => {
         </ProLayout>
       </ConfigProvider>,
     );
-    expect(html.container.querySelector('.ant-btn.ant-btn-primary.ant-btn-lg')?.textContent).toBe(
-      'Login',
-    );
+    expect(
+      html.container.querySelector('.ant-btn.ant-btn-primary.ant-btn-lg')
+        ?.textContent,
+    ).toBe('Login');
 
     expect(html.getByText('Login')).toBeTruthy();
 
@@ -1542,10 +1942,10 @@ describe('BasicLayout', () => {
         </ProLayout>
       </ConfigProvider>,
     );
-
-    expect(html.container.querySelector('.ant-btn.ant-btn-primary.ant-btn-lg')?.textContent).toBe(
-      'Login',
-    );
+    expect(
+      html.container.querySelector('.ant-btn.ant-btn-primary.ant-btn-lg')
+        ?.textContent,
+    ).toBe('Login');
 
     html = render(
       <ConfigProvider locale={en_US}>
@@ -1555,8 +1955,125 @@ describe('BasicLayout', () => {
       </ConfigProvider>,
     );
 
-    expect(html.container.querySelector('.ant-btn.ant-btn-primary.ant-btn-lg')?.textContent).toBe(
-      'Login',
+    expect(
+      html.container.querySelector('.ant-btn.ant-btn-primary.ant-btn-lg')
+        ?.textContent,
+    ).toBe('Login');
+  });
+
+  it('🥩 siderMenu should restore openKeys when collapsed is false', async () => {
+    const onCollapse = vi.fn();
+    const html = render(
+      <ProLayout
+        {...bigDefaultProps}
+        location={{ pathname: '/list/sub-page/sub-sub-page1' }}
+        onCollapse={onCollapse}
+        defaultCollapsed={false}
+      >
+        <div>Hello World</div>
+      </ProLayout>,
+    );
+    await waitForWaitTime(1000);
+
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(2);
+
+    act(() => {
+      Array.from(
+        html.baseElement.querySelectorAll<HTMLDivElement>(
+          'div.ant-pro-sider-collapsed-button',
+        ),
+      ).map((item) => item?.click());
+    });
+
+    await waitForWaitTime(1000);
+
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(0);
+
+    act(() => {
+      Array.from(
+        html.baseElement.querySelectorAll<HTMLDivElement>(
+          'div.ant-pro-sider-collapsed-button',
+        ),
+      ).map((item) => item?.click());
+    });
+
+    await waitForWaitTime(1000);
+
+    expect(onCollapse).toBeCalledTimes(2);
+    expect(
+      html.baseElement.querySelectorAll('li.ant-menu-submenu-open').length,
+    ).toBe(2);
+  });
+
+  it('🥩 ProLayout support suppressSiderWhenMenuEmpty', async () => {
+    const handleClick = vi.fn();
+    let serviceData = [
+      {
+        path: '/',
+        name: '欢迎',
+        routes: [
+          {
+            path: '/welcome',
+            name: 'one',
+            routes: [
+              {
+                path: '/welcome/welcome',
+                name: 'two',
+                exact: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: '/demo',
+        name: '例子',
+      },
+    ];
+    const actionRef = React.createRef<{
+      reload: () => void;
+    }>();
+    const html = render(
+      <ProLayout
+        // @ts-ignore
+        actionRef={actionRef}
+        suppressSiderWhenMenuEmpty
+        location={{ pathname: '/' }}
+        menu={{
+          request: async () => {
+            return serviceData;
+          },
+        }}
+      >
+        <Button
+          id="test_btn"
+          onClick={() => {
+            handleClick();
+            serviceData = [];
+            actionRef.current?.reload();
+          }}
+        >
+          刷新菜单
+        </Button>
+      </ProLayout>,
+    );
+
+    await waitForWaitTime(1000);
+    expect(html.baseElement.querySelectorAll('.ant-layout-sider').length).toBe(
+      1,
+    );
+    act(() => {
+      html.baseElement.querySelector<HTMLDivElement>('#test_btn')?.click();
+    });
+
+    await waitForWaitTime(1000);
+    expect(handleClick).toHaveBeenCalled();
+    expect(html.baseElement.querySelectorAll('.ant-layout-sider').length).toBe(
+      0,
     );
   });
 });

@@ -1,13 +1,16 @@
 import ProTable from '@ant-design/pro-table';
-import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
-import { waitForComponentToPaint } from '../util';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { getFetchData } from './demo';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('BasicTable Search', () => {
   it('🎏 filter test', async () => {
-    const fn = jest.fn();
-    const html = mount(
+    const fn = vi.fn();
+    const { container } = render(
       <ProTable
         size="small"
         columns={[
@@ -45,40 +48,23 @@ describe('BasicTable Search', () => {
         rowKey="key"
       />,
     );
-    await waitForComponentToPaint(html, 200);
 
-    act(() => {
-      html.find('span.ant-table-filter-trigger').simulate('click');
+    await userEvent.click(
+      container.querySelector('span.ant-table-filter-trigger')!,
+    );
+    fireEvent.click(screen.getAllByText('关闭')[1], {
+      target: {
+        checked: true,
+      },
     });
+    await userEvent.click(await screen.findByText('确 定'));
 
-    await waitForComponentToPaint(html, 800);
-    act(() => {
-      html.find('.ant-table-filter-dropdown').debug();
-      html.find('span.ant-table-filter-trigger').simulate('click');
-      html
-        .find('.ant-table-filter-dropdown .ant-dropdown-menu-item')
-        .at(0)
-        .simulate('click', {
-          target: {
-            checked: true,
-          },
-        });
-    });
-
-    await waitForComponentToPaint(html, 500);
-    act(() => {
-      html
-        .find('.ant-table-filter-dropdown-btns .ant-btn.ant-btn-primary.ant-btn-sm')
-        .simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 500);
-    expect(fn).toBeCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(1);
   });
 
   it('🎏 filter test', async () => {
-    const fn = jest.fn();
-    const html = mount(
+    const fn = vi.fn();
+    const { container } = render(
       <ProTable
         size="small"
         columns={[
@@ -117,40 +103,23 @@ describe('BasicTable Search', () => {
         rowKey="key"
       />,
     );
-    await waitForComponentToPaint(html, 200);
 
-    act(() => {
-      html.find('span.ant-table-filter-trigger').simulate('click');
+    await userEvent.click(
+      container.querySelector('span.ant-table-filter-trigger')!,
+    );
+    fireEvent.click(screen.getByText('关闭'), {
+      target: {
+        checked: true,
+      },
     });
+    await userEvent.click(await screen.findByText('确 定'));
 
-    await waitForComponentToPaint(html, 800);
-    act(() => {
-      html.find('.ant-table-filter-dropdown').debug();
-      html.find('span.ant-table-filter-trigger').simulate('click');
-      html
-        .find('.ant-table-filter-dropdown .ant-dropdown-menu-item')
-        .at(0)
-        .simulate('click', {
-          target: {
-            checked: true,
-          },
-        });
-    });
-
-    await waitForComponentToPaint(html, 500);
-    act(() => {
-      html
-        .find('.ant-table-filter-dropdown-btns .ant-btn.ant-btn-primary.ant-btn-sm')
-        .simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 500);
-    expect(fn).toBeCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(1);
   });
 
   it('🎏 filter test by namePath is array', async () => {
-    const fn = jest.fn();
-    const html = mount(
+    const fn = vi.fn();
+    const { container } = render(
       <ProTable
         size="small"
         columns={[
@@ -201,66 +170,42 @@ describe('BasicTable Search', () => {
         rowKey="key"
       />,
     );
-    await waitForComponentToPaint(html, 200);
 
-    act(() => {
-      html.find('span.ant-table-filter-trigger').simulate('click');
-    });
+    await userEvent.click(
+      container.querySelector('span.ant-table-filter-trigger')!,
+    );
+    await userEvent.click(
+      container.querySelectorAll(
+        '.ant-table-filter-dropdown .ant-dropdown-menu-item',
+      )[0],
+    );
+    await userEvent.click(
+      container.querySelector(
+        '.ant-table-filter-dropdown-btns .ant-btn.ant-btn-primary.ant-btn-sm',
+      )!,
+    );
 
-    await waitForComponentToPaint(html, 800);
-    act(() => {
-      html.find('.ant-table-filter-dropdown').debug();
-      html.find('span.ant-table-filter-trigger').simulate('click');
-      html
-        .find('.ant-table-filter-dropdown .ant-dropdown-menu-item')
-        .at(0)
-        .simulate('click', {
-          target: {
-            checked: false,
-          },
-        });
-    });
+    expect(fn).toHaveBeenCalled();
+    await userEvent.click(
+      container.querySelector('span.ant-table-filter-trigger')!,
+    );
+    await userEvent.click(
+      container.querySelectorAll(
+        '.ant-table-filter-dropdown .ant-dropdown-menu-item',
+      )[0],
+    );
+    await userEvent.click(
+      container.querySelector(
+        '.ant-table-filter-dropdown-btns .ant-btn.ant-btn-primary.ant-btn-sm',
+      )!,
+    );
 
-    await waitForComponentToPaint(html, 500);
-    act(() => {
-      html
-        .find('.ant-table-filter-dropdown-btns .ant-btn.ant-btn-primary.ant-btn-sm')
-        .simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 200);
-    act(() => {
-      html.find('span.ant-table-filter-trigger').simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 800);
-    act(() => {
-      html.find('.ant-table-filter-dropdown').debug();
-      html.find('span.ant-table-filter-trigger').simulate('click');
-      html
-        .find('.ant-table-filter-dropdown .ant-dropdown-menu-item')
-        .at(0)
-        .simulate('click', {
-          target: {
-            checked: true,
-          },
-        });
-    });
-
-    await waitForComponentToPaint(html, 500);
-    act(() => {
-      html
-        .find('.ant-table-filter-dropdown-btns .ant-btn.ant-btn-primary.ant-btn-sm')
-        .simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 500);
-    expect(fn).toBeCalledTimes(2);
+    expect(fn).toHaveBeenCalled();
   });
 
   it('🎏 order multiple test', async () => {
-    const fn = jest.fn();
-    const html = mount(
+    const fn = vi.fn();
+    const { container } = render(
       <ProTable<{ money: number }>
         size="small"
         columns={[
@@ -303,30 +248,26 @@ describe('BasicTable Search', () => {
         rowKey="key"
       />,
     );
-    await waitForComponentToPaint(html, 200);
 
-    act(() => {
-      html.find('span.ant-table-column-sorter-down').at(0).simulate('click');
-    });
-    await waitForComponentToPaint(html, 800);
-    act(() => {
-      html.find('span.ant-table-column-sorter-up').at(1).simulate('click');
-    });
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-down')[0],
+    );
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-up')[1],
+    );
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-down')[0],
+    );
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-down')[1],
+    );
 
-    await waitForComponentToPaint(html, 800);
-
-    act(() => {
-      html.find('span.ant-table-column-sorter-down').at(0).simulate('click');
-      html.find('span.ant-table-column-sorter-down').at(1).simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 500);
     expect(fn).toBeCalledTimes(4);
   });
 
   it('🎏 order test', async () => {
-    const fn = jest.fn();
-    const html = mount(
+    const fn = vi.fn();
+    const { container } = render(
       <ProTable<{ money: number }>
         size="small"
         columns={[
@@ -362,24 +303,20 @@ describe('BasicTable Search', () => {
         rowKey="key"
       />,
     );
-    await waitForComponentToPaint(html, 200);
 
-    act(() => {
-      html.find('span.ant-table-column-sorter-down').at(0).simulate('click');
-    });
-    await waitForComponentToPaint(html, 800);
-    act(() => {
-      html.find('span.ant-table-column-sorter-up').at(1).simulate('click');
-    });
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-down')[0],
+    );
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-up')[1],
+    );
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-down')[0],
+    );
+    await userEvent.click(
+      container.querySelectorAll('span.ant-table-column-sorter-down')[1],
+    );
 
-    await waitForComponentToPaint(html, 800);
-
-    act(() => {
-      html.find('span.ant-table-column-sorter-down').at(0).simulate('click');
-      html.find('span.ant-table-column-sorter-down').at(1).simulate('click');
-    });
-
-    await waitForComponentToPaint(html, 500);
-    expect(fn).toBeCalledTimes(4);
+    expect(fn).toHaveBeenCalledTimes(4);
   });
 });

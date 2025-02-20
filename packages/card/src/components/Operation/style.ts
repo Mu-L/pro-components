@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProToken extends ProAliasToken {
@@ -13,7 +13,7 @@ const genProStyle: GenerateStyle<ProToken> = (token) => {
       justifyContent: 'flex-end',
       marginBlock: token.marginLG,
       marginInline: 0,
-      color: 'rgba(0, 0, 0, 0.85)',
+      color: token.colorText,
       fontWeight: '500',
       fontSize: '20px',
       lineHeight: '38px',

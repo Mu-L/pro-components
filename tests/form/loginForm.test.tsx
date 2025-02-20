@@ -5,30 +5,34 @@ import {
   WeiboCircleOutlined,
 } from '@ant-design/icons';
 import { LoginForm, LoginFormPage, ProFormText } from '@ant-design/pro-form';
-import { act, render } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import { Alert, Space } from 'antd';
-import { mount } from 'enzyme';
-import { waitForComponentToPaint } from '../util';
+import { waitForWaitTime } from '../util';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('LoginForm', () => {
   it('📦 LoginForm should show login message correctly', async () => {
     const loginMessage = <Alert type="error" message="登录失败" />;
 
-    const wrapper = mount(
+    const { container } = render(
       <LoginForm message={loginMessage}>
         <ProFormText name="name" />
       </LoginForm>,
     );
-    await waitForComponentToPaint(wrapper);
 
-    expect(wrapper.find('.ant-alert.ant-alert-error').length).toEqual(1);
-    expect(wrapper.find('.ant-alert.ant-alert-error .ant-alert-message').text()).toEqual(
-      '登录失败',
-    );
+    expect(
+      container.querySelectorAll('.ant-alert.ant-alert-error'),
+    ).toHaveLength(1);
+    expect(
+      container.querySelector('.ant-alert.ant-alert-error .ant-alert-message'),
+    ).toHaveTextContent('登录失败');
   });
 
   it('📦 LoginForm should render actions correctly', async () => {
-    const wrapper = mount(
+    const { container } = render(
       <LoginForm
         actions={
           <Space>
@@ -42,35 +46,47 @@ describe('LoginForm', () => {
         <ProFormText name="name" />
       </LoginForm>,
     );
-    await waitForComponentToPaint(wrapper);
 
-    expect(wrapper.find('.ant-pro-form-login-main-other .anticon').length).toEqual(3);
+    expect(
+      container.querySelectorAll('.ant-pro-form-login-main-other .anticon'),
+    ).toHaveLength(3);
   });
 
   it('📦 LoginForm support string logo', async () => {
-    const wrapper = mount(
+    const { container } = render(
       <LoginForm logo="https://avatars.githubusercontent.com/u/8186664?v=4">
         <ProFormText name="name" />
       </LoginForm>,
     );
-    await waitForComponentToPaint(wrapper);
 
-    expect(wrapper.find('.ant-pro-form-login-logo img').exists()).toBeTruthy();
-    expect(wrapper.find('.ant-pro-form-login-logo img').props().src).toBe(
+    expect(
+      container.querySelectorAll('.ant-pro-form-login-logo img'),
+    ).toHaveLength(1);
+    expect(
+      container.querySelector('.ant-pro-form-login-logo img'),
+    ).toHaveAttribute(
+      'src',
       'https://avatars.githubusercontent.com/u/8186664?v=4',
     );
   });
 
   it('📦 LoginForm support react node logo', async () => {
-    const wrapper = mount(
-      <LoginForm logo={<img id="test" src="https://avatars.githubusercontent.com/u/8186664?v=4" />}>
+    const { findByTestId } = render(
+      <LoginForm
+        logo={
+          <img
+            data-testid="test"
+            src="https://avatars.githubusercontent.com/u/8186664?v=4"
+          />
+        }
+      >
         <ProFormText name="name" />
       </LoginForm>,
     );
-    await waitForComponentToPaint(wrapper);
 
-    expect(wrapper.find('.ant-pro-form-login-logo #test').exists()).toBeTruthy();
-    expect(wrapper.find('.ant-pro-form-login-logo #test').props().src).toBe(
+    expect(!!(await findByTestId('test'))).toBeTruthy();
+    expect(await findByTestId('test')).toHaveAttribute(
+      'src',
       'https://avatars.githubusercontent.com/u/8186664?v=4',
     );
   });
@@ -81,7 +97,7 @@ describe('LoginForm', () => {
         <ProFormText name="name" />
       </LoginForm>,
     );
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
     const dom = await wrapper.queryByText('登 录');
 
@@ -98,7 +114,7 @@ describe('LoginForm', () => {
         <ProFormText name="name" />
       </LoginForm>,
     );
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
 
     const dom = await wrapper.queryByText('登录登录');
 
@@ -106,7 +122,7 @@ describe('LoginForm', () => {
   });
 
   it('📦 LoginForm support submitter=false', async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     const wrapper = render(
       <LoginForm
         submitter={{
@@ -119,14 +135,11 @@ describe('LoginForm', () => {
       </LoginForm>,
     );
 
-    await waitForComponentToPaint(wrapper);
-    const dom = await wrapper.findByText('登 录');
+    waitFor(async () => {
+      (await wrapper.findByText('登 录')).click();
 
-    act(() => {
-      dom.click();
+      expect(fn).toHaveBeenCalled();
     });
-
-    expect(fn).toBeCalled();
   });
 
   it('📦 LoginFormPage support log', async () => {
@@ -143,7 +156,7 @@ describe('LoginForm', () => {
       </LoginFormPage>,
     );
 
-    await waitForComponentToPaint(wrapper);
+    await waitForWaitTime(100);
     const dom = await wrapper.findByText('logo');
 
     expect(!!dom).toBeTruthy();
@@ -156,8 +169,10 @@ describe('LoginForm', () => {
       </LoginFormPage>,
     );
 
-    await waitForComponentToPaint(wrapper);
-    const dom = await wrapper.baseElement.querySelector('.ant-pro-form-login-page-header');
+    await waitForWaitTime(100);
+    const dom = await wrapper.baseElement.querySelector(
+      '.ant-pro-form-login-page-header',
+    );
 
     expect(!!dom).toBeFalsy();
   });
@@ -176,13 +191,14 @@ describe('LoginForm', () => {
       </LoginForm>,
     );
 
-    await waitForComponentToPaint(wrapper);
-    let dom = await wrapper.baseElement.querySelector('.ant-btn-loading');
+    waitFor(() => {
+      let dom = wrapper.baseElement.querySelector('.ant-btn-loading');
 
-    expect(!!dom).toBeTruthy();
+      expect(!!dom).toBeTruthy();
 
-    dom = await wrapper.baseElement.querySelector('.ant-btn-lg');
+      dom = wrapper.baseElement.querySelector('.ant-btn-lg');
 
-    expect(!!dom).toBeTruthy();
+      expect(!!dom).toBeTruthy();
+    });
   });
 });

@@ -15,12 +15,10 @@ export type BaseLayoutDesignToken = {
    * 跨站点应用的图标hover颜色
    */
   colorTextAppListIcon: string;
-
   /**
    * layout 的背景颜色
    */
   bgLayout: string;
-
   /**
    * 侧边side的 token 配置
    */
@@ -29,10 +27,11 @@ export type BaseLayoutDesignToken = {
     colorTextCollapsedButtonHover: string;
     colorTextCollapsedButton: string;
     colorMenuBackground: string;
-    colorBgMenuItemCollapsedHover: string;
-    colorBgMenuItemCollapsedSelected: string;
+    menuHeight: number;
+    colorBgMenuItemCollapsedElevated: string;
     colorMenuItemDivider: string;
-    colorBgMenuItemHover: string;
+    colorBgMenuItemHover: string; // 鼠标悬浮态
+    colorBgMenuItemActive: string; // 激活态
     colorBgMenuItemSelected: string;
     colorTextMenuSelected: string;
     colorTextMenuItemHover: string;
@@ -52,8 +51,10 @@ export type BaseLayoutDesignToken = {
    */
   header: {
     colorBgHeader: string;
+    colorBgScrollHeader: string;
     colorHeaderTitle: string;
     colorBgMenuItemHover: string;
+    colorBgMenuElevated: string;
     colorBgMenuItemSelected: string;
     colorTextMenuSelected: string;
     colorTextMenuActive: string;
@@ -110,18 +111,24 @@ export const getLayoutDesignToken: (
   antdToken: Record<string, any>,
 ) => LayoutDesignToken = (designTokens, antdToken) => {
   const finalDesignTokens = { ...designTokens };
+
   return {
-    bgLayout: 'linear-gradient(#fff, #f7f8fa 28%)',
-    colorTextAppListIcon: '#666',
+    bgLayout: `linear-gradient(${antdToken.colorBgContainer}, ${antdToken.colorBgLayout} 28%)`,
+    colorTextAppListIcon: antdToken.colorTextSecondary,
     appListIconHoverBgColor: finalDesignTokens?.sider?.colorBgMenuItemSelected,
-    colorBgAppListIconHover: 'rgba(0, 0, 0, 0.04)',
+    colorBgAppListIconHover: setAlpha(antdToken.colorTextBase, 0.04),
     colorTextAppListIconHover: antdToken.colorTextBase,
     ...finalDesignTokens,
     header: {
-      colorBgHeader: 'rgba(240, 242, 245, 0.4)',
+      colorBgHeader: setAlpha(antdToken.colorBgElevated, 0.6),
+      colorBgScrollHeader: setAlpha(antdToken.colorBgElevated, 0.8),
       colorHeaderTitle: antdToken.colorText,
       colorBgMenuItemHover: setAlpha(antdToken.colorTextBase, 0.03),
       colorBgMenuItemSelected: 'transparent',
+      colorBgMenuElevated:
+        finalDesignTokens?.header?.colorBgHeader !== 'rgba(255, 255, 255, 0.6)'
+          ? finalDesignTokens.header?.colorBgHeader
+          : antdToken.colorBgElevated,
       colorTextMenuSelected: setAlpha(antdToken.colorTextBase, 0.95),
       colorBgRightActionsItemHover: setAlpha(antdToken.colorTextBase, 0.03),
       colorTextRightActionsItem: antdToken.colorTextTertiary,
@@ -135,12 +142,10 @@ export const getLayoutDesignToken: (
     sider: {
       paddingInlineLayoutMenu: 8,
       paddingBlockLayoutMenu: 0,
-      colorBgCollapsedButton: '#fff',
+      colorBgCollapsedButton: antdToken.colorBgElevated,
       colorTextCollapsedButtonHover: antdToken.colorTextSecondary,
       colorTextCollapsedButton: setAlpha(antdToken.colorTextBase, 0.25),
       colorMenuBackground: 'transparent',
-      colorBgMenuItemCollapsedHover: 'rgba(90, 75, 75, 0.03)',
-      colorBgMenuItemCollapsedSelected: setAlpha(antdToken.colorTextBase, 0.04),
       colorMenuItemDivider: setAlpha(antdToken.colorTextBase, 0.06),
       colorBgMenuItemHover: setAlpha(antdToken.colorTextBase, 0.03),
       colorBgMenuItemSelected: setAlpha(antdToken.colorTextBase, 0.04),
@@ -158,8 +163,8 @@ export const getLayoutDesignToken: (
       paddingInlinePageContainerContent:
         finalDesignTokens.pageContainer?.marginInlinePageContainerContent || 40,
       paddingBlockPageContainerContent:
-        finalDesignTokens.pageContainer?.marginBlockPageContainerContent || 24,
-      colorBgPageContainerFixed: '#fff',
+        finalDesignTokens.pageContainer?.marginBlockPageContainerContent || 32,
+      colorBgPageContainerFixed: antdToken.colorBgElevated,
       ...finalDesignTokens.pageContainer,
     },
   } as LayoutDesignToken as LayoutDesignToken;

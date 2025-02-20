@@ -5,8 +5,10 @@ export const getOpenKeysFromMenuData = (menuData?: MenuDataItem[]) => {
     if (item.key) {
       pre.push(item.key);
     }
-    if (item.routes) {
-      const newArray: string[] = pre.concat(getOpenKeysFromMenuData(item.routes) || []);
+    if (item.children || item.routes) {
+      const newArray: string[] = pre.concat(
+        getOpenKeysFromMenuData(item.children || item.routes) || [],
+      );
       return newArray;
     }
     return pre;
@@ -29,7 +31,9 @@ const themeConfig = {
  * @param val
  */
 export function genStringToTheme(val?: string): string {
-  return val && themeConfig[val] ? themeConfig[val] : val;
+  return val && themeConfig[val as 'techBlue']
+    ? themeConfig[val as 'techBlue']
+    : val || '';
 }
 export function clearMenuItem(menusData: MenuDataItem[]): MenuDataItem[] {
   return menusData

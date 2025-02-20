@@ -1,11 +1,10 @@
 ---
 title: Structured data
+atomId: ProFormList
 order: 1
-group:
-  path: /
+
 nav:
   title: Components
-  path: /components
 ---
 
 # ProFormFields
@@ -219,7 +218,7 @@ return (
     action: FormListOperation,
     /**
      * Default operation dom
-     * [delete, copy, add]
+     * [copy, delete]
      */
     defaultActionDom: ReactNode[],
     /**

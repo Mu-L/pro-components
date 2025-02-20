@@ -8,6 +8,5 @@ export * from '@ant-design/pro-provider';
 export * from '@ant-design/pro-skeleton';
 export * from '@ant-design/pro-table';
 export * from '@ant-design/pro-utils';
-
 // @ts-ignore
 export * from './version';

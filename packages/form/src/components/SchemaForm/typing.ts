@@ -6,9 +6,8 @@ import type {
   SearchTransformKeyFn,
 } from '@ant-design/pro-utils';
 import type { FormInstance, FormProps } from 'antd';
-import type { NamePath } from 'antd/es/form/interface';
+import type { NamePath } from 'antd/lib/form/interface';
 import type { CommonFormProps } from '../../BaseForm';
-import type { ProFormGridConfig } from '../../typing';
 import type {
   DrawerFormProps,
   LightFilterProps,
@@ -18,6 +17,7 @@ import type {
   StepFormProps,
   StepsFormProps,
 } from '../../layouts';
+import type { ProFormGridConfig } from '../../typing';
 
 export type ExtraProColumnType = {
   tooltip?: React.ReactNode;
@@ -34,12 +34,13 @@ export type ExtraProColumnType = {
   width?: string | number;
 
   name?: NamePath | NamePath[];
+  defaultKeyWords?: string;
 } & Pick<ProFormGridConfig, 'rowProps' | 'colProps'>;
 
 /**
  * ProForm 支持的相关类型
  */
-export type ProFormPropsType<T, ValueType = ''> =
+export type ProFormPropsType<T, ValueType = 'text'> =
   | ((
       | ({ layoutType?: 'Form' } & ProFormProps<T>)
       | ({ layoutType: 'DrawerForm' } & DrawerFormProps<T>)
@@ -59,7 +60,12 @@ export type ProFormPropsType<T, ValueType = ''> =
 /** ProForm 的特色 layout */
 export type ProFormLayoutType = ProFormPropsType<any>['layoutType'];
 
-export type FormFieldType = 'group' | 'formList' | 'formSet' | 'divider' | 'dependency';
+export type FormFieldType =
+  | 'group'
+  | 'formList'
+  | 'formSet'
+  | 'divider'
+  | 'dependency';
 
 export type ProFormColumnsType<T = any, ValueType = 'text'> = ProSchema<
   T,
@@ -135,22 +141,31 @@ export type FormSchema<T = Record<string, any>, ValueType = 'text'> = {
   shouldUpdate?: boolean | ((newValues: T, oldValues?: T) => boolean);
 } & Omit<FormProps<T>, 'onFinish'> &
   ProFormPropsType<T, ValueType> &
-  CommonFormProps<T>;
+  CommonFormProps<T> & {
+    open?: boolean;
+  };
 
-export type ProFormRenderValueTypeItem<T = Record<string, any>, ValueType = 'text'> = {
+export type ProFormRenderValueTypeItem<T, ValueType> = {
   label: any;
   getFieldProps?: () => any;
   getFormItemProps?: () => any;
 } & ProFormColumnsType<T, ValueType>;
 
-export type ProFormRenderValueTypeHelpers<T = Record<string, any>, ValueType = 'text'> = {
+export type ProFormRenderValueTypeHelpers<T, ValueType> = {
   originItem: ProFormColumnsType<T, ValueType>;
   type: ProSchemaComponentTypes;
   formRef: React.MutableRefObject<FormInstance<any> | undefined>;
   genItems: (items: ProFormColumnsType<T, ValueType>[]) => React.ReactNode[];
 } & Pick<FormSchema<T, ValueType>, 'action'>;
 
+export type ItemType<T, ValueType> = Omit<
+  ProFormRenderValueTypeItem<T, ValueType>,
+  'key'
+> & {
+  key?: React.Key | React.Key[];
+};
+
 export type ProSchemaRenderValueTypeFunction<T = any, ValueType = any> = (
-  item: ProFormRenderValueTypeItem<T, ValueType>,
+  item: ItemType<T, ValueType>,
   helpers: ProFormRenderValueTypeHelpers<T, ValueType>,
 ) => React.ReactNode;

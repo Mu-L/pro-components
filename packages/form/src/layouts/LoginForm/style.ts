@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface LoginFormToken extends ProAliasToken {
@@ -14,7 +14,7 @@ const genLoginFormStyle: GenerateStyle<LoginFormToken> = (token) => {
         flexDirection: 'column',
         height: '100%',
         paddingInline: 32,
-        paddingBlock: 0,
+        paddingBlock: 24,
         overflow: 'auto',
         background: 'inherit',
       },
@@ -55,9 +55,13 @@ const genLoginFormStyle: GenerateStyle<LoginFormToken> = (token) => {
       },
       '&-main': {
         minWidth: '328px',
-        maxWidth: '500px',
+        maxWidth: '580px',
         margin: '0 auto',
-        '&-other': { marginBlockStart: '24px', lineHeight: '22px', textAlign: 'start' },
+        '&-other': {
+          marginBlockStart: '24px',
+          lineHeight: '22px',
+          textAlign: 'start',
+        },
       },
     },
     '@media (min-width: @screen-md-min)': {

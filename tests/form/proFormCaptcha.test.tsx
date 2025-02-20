@@ -1,16 +1,20 @@
 import ProForm, { ProFormCaptcha } from '@ant-design/pro-form';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import { Button, message } from 'antd';
-import { mount } from 'enzyme';
-import React from 'react';
-import { act } from 'react-dom/test-utils';
+import React, { act } from 'react';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('ProFormCaptcha', () => {
   it('😊 ProFormCaptcha Manual open', async () => {
     const captchaRef = React.createRef<any>();
-    const fn = jest.fn();
-    jest.useFakeTimers();
+    const fn = vi.fn();
+    vi.useFakeTimers();
     const TimingText = '获取验证码';
-    const wrapper = mount(
+
+    const html = render(
       <ProForm
         title="新建表单"
         submitter={{
@@ -35,7 +39,7 @@ describe('ProFormCaptcha', () => {
                   // @ts-ignore
                   captchaRef.current?.endTiming();
                 }}
-                key="edit"
+                key="end"
               >
                 手动结束计数
               </Button>,
@@ -51,7 +55,7 @@ describe('ProFormCaptcha', () => {
           onGetCaptcha={() => {
             return new Promise((resolve, reject) => {
               fn(TimingText);
-              reject();
+              reject(new Error('模拟报错'));
             });
           }}
           captchaProps={{
@@ -63,29 +67,41 @@ describe('ProFormCaptcha', () => {
       </ProForm>,
     );
 
-    act(() => {
-      wrapper.find('button#captchaButton').simulate('click');
+    await act(async () => {
+      const dom = await html.findByText('获取验证码');
+      fireEvent.click(dom);
     });
 
     expect(fn).toHaveBeenCalledWith(TimingText);
 
-    act(() => {
-      wrapper.find('button#start').simulate('click');
+    await act(async () => {
+      const dom = await html.findByText('手动开始计数');
+      fireEvent.click(dom);
     });
 
-    expect(wrapper.find('#captchaButton').at(0).html()).toMatch('60 秒后重新获取');
+    expect(
+      html.container.querySelectorAll('#captchaButton')[0],
+    ).toHaveTextContent('60 秒后重新获取');
 
-    act(() => {
-      wrapper.find('button#end').simulate('click');
+    await act(async () => {
+      const dom = await html.findByText('手动结束计数');
+      fireEvent.click(dom);
     });
 
-    expect(wrapper.find('#captchaButton').at(0).html()).toMatch('获取验证码');
+    expect(
+      html.container.querySelectorAll('#captchaButton')[0],
+    ).toHaveTextContent('获取验证码');
 
     expect(captchaRef.current).toBeTruthy();
 
-    jest.advanceTimersByTime(60000);
-    expect(wrapper.find('#captchaButton').at(0).html()).toMatch('获取验证码');
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
 
-    jest.useRealTimers();
+    expect(
+      html.container.querySelectorAll('#captchaButton')[0],
+    ).toHaveTextContent('获取验证码');
+
+    vi.useRealTimers();
   });
 });
