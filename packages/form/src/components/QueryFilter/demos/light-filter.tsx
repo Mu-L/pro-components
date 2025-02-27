@@ -16,7 +16,7 @@ import {
   ProFormTreeSelect,
 } from '@ant-design/pro-components';
 import { Radio, TreeSelect } from 'antd';
-import type { SizeType } from 'antd/es/config-provider/SizeContext';
+import type { SizeType } from 'antd/lib/config-provider/SizeContext';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -74,7 +74,6 @@ export default () => {
       <br />
       <LightFilter<{
         sex: string;
-        company: string;
       }>
         initialValues={{
           name1: 'yutingzhao1991',
@@ -135,11 +134,11 @@ export default () => {
         <ProFormTreeSelect
           initialValue={['0-0', '0-1']}
           label="树形下拉选择器"
-          request={async () => treeData}
           fieldProps={{
             fieldNames: {
               label: 'title',
             },
+            treeData,
             treeCheckable: true,
             showCheckedStrategy: TreeSelect.SHOW_PARENT,
             placeholder: 'Please select',
@@ -186,16 +185,24 @@ export default () => {
           label="区域"
           initialValue={['zhejiang', 'hangzhou', 'xihu']}
         />
+        <ProFormSwitch name="open" label="开关" />
         <ProFormDigit name="count" label="数量" />
         <ProFormSlider name="range" label="范围" range />
         <ProFormSlider name="slider" label="范围" />
         <ProFormText name="name1" label="名称" />
         <ProFormSwitch name="open" label="开关" secondary />
         <ProFormText name="name2" label="地址" secondary />
-        <ProFormDatePicker name="name3" label="不能清空的日期" allowClear={false} />
+        <ProFormDatePicker
+          name="name3"
+          label="不能清空的日期"
+          allowClear={false}
+        />
         <ProFormDateRangePicker name="date" label="日期范围" />
         <ProFormDateTimePicker name="datetime" label="日期时间" />
-        <ProFormDateTimeRangePicker name="datetimeRanger" label="日期时间范围" />
+        <ProFormDateTimeRangePicker
+          name="datetimeRanger"
+          label="日期时间范围"
+        />
         <ProFormTimePicker name="time" label="时间" />
         <ProFormTimePicker.RangePicker name="timeRanger" label="时间范围" />
         <ProFormFieldSet name="name" label="姓名">

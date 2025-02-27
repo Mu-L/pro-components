@@ -6,14 +6,7 @@ import { AppsLogo } from './AppsLogo';
 import { DefaultContent } from './DefaultContent';
 import { SimpleContent } from './SimpleContent';
 import { useStyle } from './style/index';
-
-export type AppsLogoComponentsAppList = {
-  title: React.ReactNode;
-  desc: React.ReactNode;
-  icon: React.ReactNode;
-  url: string;
-  target?: string;
-}[];
+import type { AppItemProps, AppListProps } from './types';
 
 /**
  * 默认渲染logo的方式，如果是个string，用img。否则直接返回
@@ -40,17 +33,35 @@ export const defaultRenderLogo = (
  * @returns
  */
 export const AppsLogoComponents: React.FC<{
-  appList?: AppsLogoComponentsAppList;
+  appList?: AppListProps;
+  appListRender?: (
+    props: AppListProps,
+    defaultDom: React.ReactNode,
+  ) => React.ReactNode;
+  onItemClick?: (
+    item: AppItemProps,
+    popoverRef?: React.RefObject<HTMLSpanElement>,
+  ) => void;
   prefixCls?: string;
 }> = (props) => {
-  const { appList, prefixCls = 'ant-pro' } = props;
+  const {
+    appList,
+    appListRender,
+    prefixCls = 'ant-pro',
+    onItemClick: itemClick,
+  } = props;
   const ref = React.useRef<HTMLDivElement>(null);
+  const popoverRef = React.useRef<HTMLSpanElement>(null);
   const baseClassName = `${prefixCls}-layout-apps`;
   const { wrapSSR, hashId } = useStyle(baseClassName);
 
   const [open, setOpen] = useState(false);
 
-  const popoverContent = useMemo(() => {
+  const cloneItemClick = (app: AppItemProps) => {
+    itemClick?.(app, popoverRef);
+  };
+
+  const defaultDomContent = useMemo(() => {
     const isSimple = appList?.some((app) => {
       return !app?.desc;
     });
@@ -59,6 +70,7 @@ export const AppsLogoComponents: React.FC<{
         <SimpleContent
           hashId={hashId}
           appList={appList}
+          itemClick={itemClick ? cloneItemClick : undefined}
           baseClassName={`${baseClassName}-simple`}
         />
       );
@@ -67,6 +79,7 @@ export const AppsLogoComponents: React.FC<{
       <DefaultContent
         hashId={hashId}
         appList={appList}
+        itemClick={itemClick ? cloneItemClick : undefined}
         baseClassName={`${baseClassName}-default`}
       />
     );
@@ -74,8 +87,13 @@ export const AppsLogoComponents: React.FC<{
 
   if (!props?.appList?.length) return null;
 
-  const popoverOpenProps = openVisibleCompatible(undefined, (openChange: boolean) =>
-    setOpen(openChange),
+  const popoverContent = appListRender
+    ? appListRender(props?.appList, defaultDomContent)
+    : defaultDomContent;
+
+  const popoverOpenProps = openVisibleCompatible(
+    undefined,
+    (openChange: boolean) => setOpen(openChange),
   );
 
   return wrapSSR(
@@ -91,13 +109,14 @@ export const AppsLogoComponents: React.FC<{
         placement="bottomRight"
         trigger={['click']}
         zIndex={9999}
-        arrowPointAtCenter
+        arrow={false}
         {...popoverOpenProps}
-        overlayClassName={`${baseClassName}-popover ${hashId}`}
+        overlayClassName={`${baseClassName}-popover ${hashId}`.trim()}
         content={popoverContent}
         getPopupContainer={() => ref.current || document.body}
       >
         <span
+          ref={popoverRef}
           onClick={(e) => {
             e.stopPropagation();
           }}

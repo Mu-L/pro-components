@@ -16,8 +16,8 @@ const App: React.FC = () => (
     <PageHeader
       ghost={false}
       onBack={() => window.history.back()}
-      title="Title"
-      subTitle="This is a subtitle"
+      oldtitle="Title"
+      suboldtitle="This is a subtitle"
       extra={[
         <Button key="3">Operation</Button>,
         <Button key="2">Operation</Button>,
@@ -47,6 +47,6 @@ export default App;
 ```css
 .site-page-header-ghost-wrapper {
   padding: 24px;
-  background-color: #f5f5f5;
+  background-color: hsl(220, 23%, 97%);
 }
 ```

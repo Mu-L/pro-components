@@ -1,9 +1,20 @@
-import { ProForm, ProFormDependency, ProFormText } from '@ant-design/pro-components';
-import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
-import { waitForComponentToPaint } from '../util';
+import {
+  ProForm,
+  ProFormDependency,
+  ProFormText,
+} from '@ant-design/pro-components';
+import { cleanup, fireEvent, render } from '@testing-library/react';
+import { act } from 'react';
+import { waitForWaitTime } from '../util';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('ProForm Dependency component', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('⛲ shouldUpdate of ProFormDependency is Boolean', async () => {
     const Demo: React.FC<{
       shouldUpdate?: boolean;
@@ -20,41 +31,51 @@ describe('ProForm Dependency component', () => {
       );
     };
 
-    const html = mount(<Demo />);
+    const html = render(<Demo />);
 
     act(() => {
-      html.find('input.ant-input').simulate('change', {
-        target: {
-          value: 'second',
+      fireEvent.change(
+        html.baseElement.querySelector<HTMLDivElement>('input.ant-input')!,
+        {
+          target: {
+            value: 'second',
+          },
         },
-      });
+      );
     });
 
-    await waitForComponentToPaint(html);
+    await waitForWaitTime(100);
 
-    expect(html.find('div#show').text()).toBe('first');
-
-    html.setProps({
-      shouldUpdate: true,
-    });
-
-    await waitForComponentToPaint(html);
+    expect(
+      html.baseElement.querySelector<HTMLDivElement>('div#show')?.textContent,
+    ).toBe('first');
 
     act(() => {
-      html.find('input.ant-input').simulate('change', {
-        target: {
-          value: 'ProComponents',
-        },
-      });
+      html.rerender(<Demo shouldUpdate />);
     });
 
-    await waitForComponentToPaint(html);
+    await waitForWaitTime(100);
 
-    expect(html.find('div#show').text()).toBe('ProComponents');
+    act(() => {
+      fireEvent.change(
+        html.baseElement.querySelector<HTMLDivElement>('input.ant-input')!,
+        {
+          target: {
+            value: 'ProComponents',
+          },
+        },
+      );
+    });
+
+    await waitForWaitTime(100);
+
+    expect(
+      html.baseElement.querySelector<HTMLDivElement>('div#show')?.textContent,
+    ).toBe('ProComponents');
   });
 
   it('⛲ shouldUpdate of ProFormDependency is Function', async () => {
-    const html = mount(
+    const html = render(
       <ProForm>
         <ProFormText name="name" label="姓名" />
         <ProFormDependency
@@ -74,30 +95,38 @@ describe('ProForm Dependency component', () => {
     );
 
     act(() => {
-      html.find('input.ant-input').simulate('change', {
-        target: {
-          value: "Don't update",
+      fireEvent.change(
+        html.baseElement.querySelector<HTMLDivElement>('input.ant-input')!,
+        {
+          target: {
+            value: "Don't update",
+          },
         },
-      });
+      );
     });
 
-    await waitForComponentToPaint(html);
+    await waitForWaitTime(100);
 
     act(() => {
-      html.find('input.ant-input').simulate('change', {
-        target: {
-          value: 'update',
+      fireEvent.change(
+        html.baseElement.querySelector<HTMLDivElement>('input.ant-input')!,
+        {
+          target: {
+            value: 'update',
+          },
         },
-      });
+      );
     });
 
-    await waitForComponentToPaint(html);
+    await waitForWaitTime(100);
 
-    expect(html.find('div#show').text()).toBe('update');
+    expect(
+      html.baseElement.querySelector<HTMLDivElement>('div#show')?.textContent,
+    ).toBe('update');
   });
 
   it('⛲ ProFormDependency support transform', async () => {
-    const dependencyFn = jest.fn();
+    const dependencyFn = vi.fn();
     const Demo: React.FC<{
       shouldUpdate?: boolean;
     }> = () => {
@@ -123,17 +152,20 @@ describe('ProForm Dependency component', () => {
       );
     };
 
-    const html = mount(<Demo />);
+    const html = render(<Demo />);
 
     act(() => {
-      html.find('input.ant-input').simulate('change', {
-        target: {
-          value: 'second',
+      fireEvent.change(
+        html.baseElement.querySelector<HTMLDivElement>('input.ant-input')!,
+        {
+          target: {
+            value: 'second',
+          },
         },
-      });
+      );
     });
 
-    await waitForComponentToPaint(html);
-    expect(dependencyFn).toBeCalledWith('second chen');
+    await waitForWaitTime(100);
+    expect(dependencyFn).toHaveBeenCalledWith('second chen');
   });
 });

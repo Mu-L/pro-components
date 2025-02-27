@@ -7,7 +7,7 @@ import {
   ProFormText,
 } from '@ant-design/pro-components';
 import { Radio } from 'antd';
-import type { SizeType } from 'antd/es/config-provider/SizeContext';
+import type { SizeType } from 'antd/lib/config-provider/SizeContext';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -28,7 +28,6 @@ export default () => {
       <br />
       <LightFilter<{
         sex: string;
-        company: string;
       }>
         initialValues={{
           name1: 'yutingzhao1991',

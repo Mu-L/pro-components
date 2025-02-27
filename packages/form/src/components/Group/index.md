@@ -1,11 +1,7 @@
 ---
 title: ProFormList - 数据结构化
+atomId: ProFormList
 order: 1
-group:
-  path: /
-nav:
-  title: 组件
-  path: /components
 ---
 
 # 数据结构化
@@ -208,7 +204,7 @@ return (
     action: FormListOperation,
     /**
      * 默认的操作dom
-     * [删除，复制，新增]
+     * [复制，删除]
      */
     defaultActionDom: ReactNode[],
     /**
@@ -299,7 +295,7 @@ type RenderActionParams = {
 
 ## ProFormFieldSet
 
-ProFormFieldSet 可以将内部的多个 children 的值组合并且存储在 ProForm 中，并且可以通过 `transform` 在提交时转化。下面是一个简单的用法,可以方便的组合多个输入框，并且格式化为想要的数据。
+ProFormFieldSet 可以将内部的多个 children 的值组合并且存储在 ProForm 中，并且可以通过 `transform` 在提交时转化。下面是一个简单的用法，可以方便的组合多个输入框，并且格式化为想要的数据。
 
 ```tsx | pure
 <ProFormFieldSet
@@ -346,32 +342,32 @@ name 参数必须要是一个数组，如果是嵌套的结构可以这样配置
 
 ### 自定义删除和复制的 tooltip
 
-<code src="./demos/list-tooltip" title="ProForm.List" height="371px"/>
+<code src="./demos/list-tooltip" title="ProForm.List" ></code>
 
 ### 联动的 FormList
 
-<code src="./demos/base-use" title="ProForm.List" height="285px"/>
+<code src="./demos/base-use" title="ProForm.List" ></code>
 
 ### 可调整的新建按钮位置
 
-<code src="./demos/list.tsx" title="ProForm.List-position" height="686px"/>
+<code src="./demos/list.tsx" title="ProForm.List-position" ></code>
 
 ### 表单互相嵌套
 
-<code src="./demos/nested-list.tsx" title="ProForm.List-ProFormList" height="649px"/>
+<code src="./demos/nested-list.tsx" title="ProForm.List-ProFormList" ></code>
 
 ### 复杂联动
 
-<code src="./demos/dependency.tsx" title="ProForm.List-dependency" height="371px"/>
+<code src="./demos/dependency.tsx" title="ProForm.List-dependency" ></code>
 
 ### 行为守卫
 
-<code src="./demos/pro-form-list.tsx" height="447px" title="行为守卫"/>
+<code src="./demos/pro-form-list.tsx" title="行为守卫"></code>
 
 ### 增删条目限制
 
-<code src="./demos/countLimit.tsx" height="285px" title="增删条目限制"/>
+<code src="./demos/countLimit.tsx" title="增删条目限制"></code>
 
 ### 横向布局
 
-<code src="./demos/horizontal-layout.tsx" title="横向布局" height="380px"/>
+<code src="./demos/horizontal-layout.tsx" title="横向布局" ></code>

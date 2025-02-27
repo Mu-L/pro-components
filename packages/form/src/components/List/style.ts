@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProToken extends ProAliasToken {
@@ -7,11 +7,13 @@ export interface ProToken extends ProAliasToken {
 
 const genProStyle: GenerateStyle<ProToken> = (token) => {
   return {
-    [`${token.antCls}-form:not(${token.antCls}-form-horizontal)`]: {
-      [token.componentCls]: {
-        [`&-item:not(${token.componentCls}-item-show-label)`]: {
-          [`${token.antCls}-form-item-label`]: {
-            display: 'none',
+    [`${token.antCls}-pro`]: {
+      [`${token.antCls}-form:not(${token.antCls}-form-horizontal)`]: {
+        [token.componentCls]: {
+          [`&-item:not(${token.componentCls}-item-show-label)`]: {
+            [`${token.antCls}-form-item-label`]: {
+              display: 'none',
+            },
           },
         },
       },
@@ -24,7 +26,7 @@ const genProStyle: GenerateStyle<ProToken> = (token) => {
             display: 'inline-block',
           },
         },
-        '&:first-of-type': {
+        '&&-default:first-child': {
           'div:first-of-type': {
             [`${token.antCls}-form-item`]: {
               [`${token.antCls}-form-item-label`]: {
@@ -33,8 +35,26 @@ const genProStyle: GenerateStyle<ProToken> = (token) => {
             },
           },
         },
+        '&&-default:not(:first-child)': {
+          'div:first-of-type': {
+            [`${token.antCls}-form-item`]: {
+              [`${token.antCls}-form-item-label`]: {
+                display: 'none',
+              },
+            },
+          },
+        },
       },
-      '&-action': { display: 'flex', height: '32px', marginBlockEnd: '24px', lineHeight: '32px' },
+      '&-action': {
+        display: 'flex',
+        height: token.controlHeight,
+        marginBlockEnd: token.marginLG,
+        lineHeight: token.controlHeight + 'px',
+        '&-small': {
+          height: token.controlHeightSM,
+          lineHeight: token.controlHeightSM,
+        },
+      },
       '&-action-icon': {
         marginInlineStart: 8,
         cursor: 'pointer',

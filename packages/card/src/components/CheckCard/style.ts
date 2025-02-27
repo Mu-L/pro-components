@@ -1,4 +1,5 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import { Keyframes } from '@ant-design/cssinjs';
+import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProListToken extends ProAliasToken {
@@ -6,7 +7,7 @@ export interface ProListToken extends ProAliasToken {
 }
 
 const proCheckCardActive = (token: ProListToken) => ({
-  backgroundColor: token.colorPrimaryBgHover,
+  backgroundColor: token.colorPrimaryBg,
   borderColor: token.colorPrimary,
 });
 const proCheckCardDisabled = (token: ProListToken) => ({
@@ -24,6 +25,12 @@ const proCheckCardDisabled = (token: ProListToken) => ({
   },
 });
 
+export const cardLoading = new Keyframes('card-loading', {
+  '0%': { backgroundPosition: '0 50%' },
+  '50%': { backgroundPosition: '100% 50%' },
+  '100%': { backgroundPosition: '0 50%' },
+});
+
 const genProStyle: GenerateStyle<ProListToken> = (token) => {
   return {
     [token.componentCls]: {
@@ -38,8 +45,23 @@ const genProStyle: GenerateStyle<ProListToken> = (token) => {
       verticalAlign: 'top',
       backgroundColor: token.colorBgContainer,
       borderRadius: token.borderRadius,
+      overflow: 'auto',
       cursor: 'pointer',
       transition: `all 0.3s`,
+      '&:after': {
+        position: 'absolute',
+        insetBlockStart: 2,
+        insetInlineEnd: 2,
+        width: 0,
+        height: 0,
+        opacity: 0,
+        transition: 'all 0.3s ' + token.motionEaseInOut,
+        borderBlockEnd: `${token.borderRadius + 4}px  solid transparent`,
+        borderInlineStart: `${token.borderRadius + 4}px  solid transparent`,
+        borderStartEndRadius: `${token.borderRadius}px`,
+        content: "''",
+      },
+
       '&:last-child': {
         marginInlineEnd: 0,
       },
@@ -51,51 +73,65 @@ const genProStyle: GenerateStyle<ProListToken> = (token) => {
       },
       '&-group': {
         display: 'inline-block',
+        '&-sub-check-card': {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          '&-title': {
+            cursor: 'pointer',
+            paddingBlock: token.paddingXS,
+            display: 'flex',
+            gap: 4,
+            alignItems: 'center',
+          },
+          '&-panel': {
+            visibility: 'initial',
+            transition: 'all 0.3s',
+            opacity: 1,
+            '&-collapse': {
+              display: 'none',
+              visibility: 'hidden',
+              opacity: 0,
+            },
+          },
+        },
       },
       [`${token.componentCls}-loading`]: {
         overflow: 'hidden',
         userSelect: 'none',
         '&-content': {
-          paddingInline: token.padding,
-          paddingBlock: token.paddingSM,
-          p: {
-            marginBlock: 0,
-            marginInline: 0,
-          },
-          [`${token.componentCls}-loading-block`]: {
-            height: '14px',
-            marginBlock: '4px',
-            background: `linear-gradient(90deg, rgba(54, 61, 64, 0.2), rgba(54, 61, 64, 0.4), rgba(54, 61, 64, 0.2))`,
-            animationName: 'card-loading',
-            animationDuration: '1.4s',
-            animationTimingFunction: 'ease',
-            animationIterationCount: 'infinite',
-          },
-          '@keyframes card-loading': {
-            '0%': { backgroundPosition: '0 50%' },
-            '50%': { backgroundPosition: '100% 50%' },
-            '100%': { backgroundPosition: '0 50%' },
-          },
+          padding: token.paddingMD,
         },
       },
       '&:focus': proCheckCardActive(token),
       '&-checked': {
         ...proCheckCardActive(token),
         '&:after': {
+          opacity: 1,
+          border: `${token.borderRadius + 4}px solid ${token.colorPrimary}`,
+          borderBlockEnd: `${token.borderRadius + 4}px  solid transparent`,
+          borderInlineStart: `${token.borderRadius + 4}px  solid transparent`,
+          borderStartEndRadius: `${token.borderRadius}px`,
+        },
+      },
+      '&-disabled': proCheckCardDisabled(token),
+      '&[disabled]': proCheckCardDisabled(token),
+      '&-checked&-disabled': {
+        '&:after': {
           position: 'absolute',
           insetBlockStart: 2,
           insetInlineEnd: 2,
           width: 0,
           height: 0,
-          border: `6px solid ${token.colorPrimary}`,
-          borderBlockEnd: '6px solid transparent',
-          borderInlineStart: '6px solid transparent',
-          borderStartEndRadius: '2px',
+          border: `${token.borderRadius + 4}px solid ${
+            token.colorTextDisabled
+          }`,
+          borderBlockEnd: `${token.borderRadius + 4}px  solid transparent`,
+          borderInlineStart: `${token.borderRadius + 4}px  solid transparent`,
+          borderStartEndRadius: `${token.borderRadius}px`,
           content: "''",
         },
       },
-      '&-disabled': proCheckCardDisabled(token),
-      '&[disabled]': proCheckCardDisabled(token),
       '&-lg': {
         width: 440,
       },
@@ -117,6 +153,10 @@ const genProStyle: GenerateStyle<ProListToken> = (token) => {
         paddingInline: token.paddingSM,
         paddingBlock: token.padding,
       },
+      '&-body': {
+        paddingInline: token.paddingSM,
+        paddingBlock: token.padding,
+      },
       '&-avatar-header': { display: 'flex', alignItems: 'center' },
       '&-avatar': { paddingInlineEnd: 8 },
       '&-detail': {
@@ -126,7 +166,18 @@ const genProStyle: GenerateStyle<ProListToken> = (token) => {
           marginBlockEnd: 4,
         },
       },
-      '&-header': { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+      '&-header': {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        lineHeight: token.lineHeight,
+        '&-left': {
+          display: 'flex',
+          alignItems: 'center',
+          gap: token.sizeSM,
+          minWidth: 0,
+        },
+      },
       '&-title': {
         overflow: 'hidden',
         color: token.colorTextHeading,
@@ -134,6 +185,12 @@ const genProStyle: GenerateStyle<ProListToken> = (token) => {
         fontSize: token.fontSize,
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        '&-with-ellipsis': {
+          display: 'inline-block',
+        },
       },
       '&-description': {
         color: token.colorTextSecondary,

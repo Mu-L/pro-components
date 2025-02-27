@@ -1,9 +1,7 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`💵 ProFormMoney 💵 ProFormMoney value expect number 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 ProFormMoney value expect number 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -28,7 +26,7 @@ exports[`💵 ProFormMoney 💵 ProFormMoney value expect number 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -93,6 +91,7 @@ exports[`💵 ProFormMoney 💵 ProFormMoney value expect number 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuenow="44.33"
                     autocomplete="off"
                     class="ant-input-number-input"
@@ -100,7 +99,7 @@ exports[`💵 ProFormMoney 💵 ProFormMoney value expect number 1`] = `
                     placeholder="请输入"
                     role="spinbutton"
                     step="1"
-                    value="￥ 44.33"
+                    value="¥ 44.33"
                   />
                 </div>
               </div>
@@ -110,44 +109,31 @@ exports[`💵 ProFormMoney 💵 ProFormMoney value expect number 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            提 交
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          重 置
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            重 置
-          </span>
-        </button>
-      </div>
+        <span>
+          提 交
+        </span>
+      </button>
     </div>
   </form>
 </div>
 `;
 
-exports[`💵 ProFormMoney 💵 can input negative 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 can input negative 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -172,7 +158,7 @@ exports[`💵 ProFormMoney 💵 can input negative 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item ant-input-number-status-success"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-status-success ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -237,6 +223,7 @@ exports[`💵 ProFormMoney 💵 can input negative 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuenow="-55.33"
                     autocomplete="off"
                     class="ant-input-number-input"
@@ -244,7 +231,7 @@ exports[`💵 ProFormMoney 💵 can input negative 1`] = `
                     placeholder="请输入"
                     role="spinbutton"
                     step="1"
-                    value="￥ -55.33"
+                    value="¥ -55.33"
                   />
                 </div>
               </div>
@@ -254,44 +241,31 @@ exports[`💵 ProFormMoney 💵 can input negative 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            提 交
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          重 置
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            重 置
-          </span>
-        </button>
-      </div>
+        <span>
+          提 交
+        </span>
+      </button>
     </div>
   </form>
 </div>
 `;
 
-exports[`💵 ProFormMoney 💵 can not input negative 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 can not input negative 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -316,7 +290,7 @@ exports[`💵 ProFormMoney 💵 can not input negative 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -381,6 +355,7 @@ exports[`💵 ProFormMoney 💵 can not input negative 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuemin="0"
                     autocomplete="off"
                     class="ant-input-number-input"
@@ -398,44 +373,31 @@ exports[`💵 ProFormMoney 💵 can not input negative 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            提 交
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          重 置
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            重 置
-          </span>
-        </button>
-      </div>
+        <span>
+          提 交
+        </span>
+      </button>
     </div>
   </form>
 </div>
 `;
 
-exports[`💵 ProFormMoney 💵 moneySymbol with custom locale 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 moneySymbol with custom locale 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -460,7 +422,7 @@ exports[`💵 ProFormMoney 💵 moneySymbol with custom locale 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -525,11 +487,12 @@ exports[`💵 ProFormMoney 💵 moneySymbol with custom locale 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuenow="44.33"
                     autocomplete="off"
                     class="ant-input-number-input"
                     id="amount"
-                    placeholder="请输入"
+                    placeholder="Please enter"
                     role="spinbutton"
                     step="1"
                     value="$ 44.33"
@@ -542,44 +505,31 @@ exports[`💵 ProFormMoney 💵 moneySymbol with custom locale 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            提 交
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          重 置
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            重 置
-          </span>
-        </button>
-      </div>
+        <span>
+          提 交
+        </span>
+      </button>
     </div>
   </form>
 </div>
 `;
 
-exports[`💵 ProFormMoney 💵 moneySymbol with custom symbol 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 moneySymbol with custom symbol 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -604,7 +554,7 @@ exports[`💵 ProFormMoney 💵 moneySymbol with custom symbol 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -669,6 +619,7 @@ exports[`💵 ProFormMoney 💵 moneySymbol with custom symbol 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuenow="44.33"
                     autocomplete="off"
                     class="ant-input-number-input"
@@ -686,44 +637,31 @@ exports[`💵 ProFormMoney 💵 moneySymbol with custom symbol 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            提 交
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          重 置
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            重 置
-          </span>
-        </button>
-      </div>
+        <span>
+          提 交
+        </span>
+      </button>
     </div>
   </form>
 </div>
 `;
 
-exports[`💵 ProFormMoney 💵 moneySymbol with global locale 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 moneySymbol with global locale 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -748,7 +686,7 @@ exports[`💵 ProFormMoney 💵 moneySymbol with global locale 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -813,6 +751,7 @@ exports[`💵 ProFormMoney 💵 moneySymbol with global locale 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuenow="44.33"
                     autocomplete="off"
                     class="ant-input-number-input"
@@ -830,44 +769,31 @@ exports[`💵 ProFormMoney 💵 moneySymbol with global locale 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            Submit
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          Reset
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            Reset
-          </span>
-        </button>
-      </div>
+        <span>
+          Submit
+        </span>
+      </button>
     </div>
   </form>
 </div>
 `;
 
-exports[`💵 ProFormMoney 💵 update money precision when init 1`] = `
-<div
-  class="ant-pro"
->
+exports[`💵 ProFormMoney > 💵 update money precision when init 1`] = `
+<div>
   <form
     autocomplete="off"
     class="ant-form ant-form-vertical ant-pro-form"
@@ -892,7 +818,7 @@ exports[`💵 ProFormMoney 💵 update money precision when init 1`] = `
               class="ant-form-item-control-input-content"
             >
               <div
-                class="ant-input-number ant-input-number-in-form-item"
+                class="ant-input-number ant-input-number-in-form-item ant-input-number-outlined ant-input-number-focused"
                 style="width: 100%;"
               >
                 <div
@@ -957,6 +883,7 @@ exports[`💵 ProFormMoney 💵 update money precision when init 1`] = `
                   class="ant-input-number-input-wrap"
                 >
                   <input
+                    aria-describedby="test-id"
                     aria-valuenow="444444444.3333333"
                     autocomplete="off"
                     class="ant-input-number-input"
@@ -974,35 +901,24 @@ exports[`💵 ProFormMoney 💵 update money precision when init 1`] = `
       </div>
     </div>
     <div
-      class="ant-space ant-space-horizontal ant-space-align-center"
-      style="flex-wrap: wrap; margin-bottom: -8px;"
+      style="display: flex; gap: 8px; align-items: center;"
     >
-      <div
-        class="ant-space-item"
-        style="margin-right: 8px; padding-bottom: 8px;"
+      <button
+        class="ant-btn ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-primary"
-          type="button"
-        >
-          <span>
-            提 交
-          </span>
-        </button>
-      </div>
-      <div
-        class="ant-space-item"
-        style="padding-bottom: 8px;"
+        <span>
+          重 置
+        </span>
+      </button>
+      <button
+        class="ant-btn ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+        type="button"
       >
-        <button
-          class="ant-btn ant-btn-default"
-          type="button"
-        >
-          <span>
-            重 置
-          </span>
-        </button>
-      </div>
+        <span>
+          提 交
+        </span>
+      </button>
     </div>
   </form>
 </div>

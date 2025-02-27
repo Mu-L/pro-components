@@ -1,10 +1,8 @@
 ---
 title: Query/LightFilter
-group:
-  path: /
+atomId: QueryFilter,LightFilter
 nav:
   title: Components
-  path: /components
 ---
 
 # QueryFilter / LightFilter
@@ -13,33 +11,37 @@ QueryFilter and LightFilter solve the problem of using the form with other compo
 
 ### Query Filter
 
-<code src="./demos/query-filter.tsx" height="168px"/>
+<code src="./demos/query-filter.tsx" ></code>
 
 ### Query filter - put away by default
 
-<code src="./demos/query-filter-collapsed.tsx" height="56px"/>
+<code src="./demos/query-filter-collapsed.tsx" ></code>
 
 ### query-filter-vertical-layout
 
-<code src="./demos/query-filter-vertical.tsx" height="172px"/>
+<code src="./demos/query-filter-vertical.tsx" ></code>
 
 ### query-filter-search
 
-<code src="./demos/search-filter.tsx" background="#f7f8fa" height="274px"/>
+<code src="./demos/search-filter.tsx" background="var(--main-bg-color)" ></code>
+
+### query-filter-defaultFormItemsNumber
+
+<code src="./demos/query-filter-defaultFormItemsNumber.tsx" background="var(--main-bg-color)"></code>
 
 ### Lightweight filtering
 
-<code src="./demos/light-filter.tsx" height="86px"/>
+<code src="./demos/light-filter.tsx" ></code>
 
 ### Light filtering - border mode
 
-<code src="./demos/light-filter-bordered.tsx" height="32px" />
+<code src="./demos/light-filter-bordered.tsx" ></code>
 
 ### Light filtering - collapsed mode
 
 All options in collapsed mode are collapsed by default, with or without values, and the control's `secondary` will no longer be valid.
 
-<code src="./demos/light-filter-collapse.tsx" height="40px"/>
+<code src="./demos/light-filter-collapse.tsx" ></code>
 
 ## API
 
@@ -53,7 +55,9 @@ QueryFilter supports the following properties in addition to the API inherited f
 | defaultCollapsed | Whether or not to collapse out-of-order form items in default state | `boolean` | true |
 | onCollapse | Callback when toggling the collapsed state of the form | `(collapsed)=>void` | - |
 | hideRequiredMark | Hide the required markers for all form items, **hide by default** | `boolean` | true |
-| defaultColsNumber | The default number of controls to be displayed in the collapsed state, if not set or less than 0, one line of controls will be displayed; if the number is greater than or equal to the number of controls, the expand button will be hidden | `number` | - |
+| submitterColSpanProps | Props of the col where the submit button is located. | ColProps | - |
+| defaultColsNumber | The default number of form controls displayed in a collapsed state. Only one row of controls is displayed at most, and when exceeded, a collapse/hide button is shown. | `number` | - |
+| defaultFormItemsNumber | The difference from defaultColsNumber is that the specified number of controls will be displayed, and when exceeded, a collapse/hide button will be shown. | `number` | - |
 | labelWidth | label width | `number` \| `'auto'` | `98` |
 | span | width of form items | `number[0 - 24]` | - |
 | split | whether each line has a split line | `boolean` | - |
@@ -81,7 +85,7 @@ Note that the values of the breakpoints are the size of the form container and n
 | `≧ 1057px` | 4 columns |
 | `≧ 785px && < 1057px` | 3 columns |
 | `≧ 513px && < 785px` | 2 columns |
-| < 513px` | 1 column |
+| < 513px\` | 1 column |
 
 ### LightFilter
 

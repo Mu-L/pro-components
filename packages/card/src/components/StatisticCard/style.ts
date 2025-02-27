@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface ProListToken extends ProAliasToken {
@@ -21,7 +21,10 @@ const genProStyle: GenerateStyle<ProListToken> = (token) => {
         flexDirection: 'column',
         '&-horizontal': {
           flexDirection: 'row',
-          [`${token.componentCls}-chart`]: { alignItems: 'center', alignSelf: 'flex-start' },
+          [`${token.componentCls}-chart`]: {
+            alignItems: 'center',
+            alignSelf: 'flex-start',
+          },
         },
       },
       '&-footer': {

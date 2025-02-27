@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-utils';
 
 export interface ProToken extends ProAliasToken {
@@ -11,13 +11,14 @@ const genTopNavHeaderStyle: GenerateStyle<ProToken> = (token) => {
       '&-header-actions': {
         display: 'flex',
         height: '100%',
+        alignItems: 'center',
         '&-item': {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           paddingBlock: 0,
           paddingInline: 2,
-          color: token?.layout?.header?.colorTextRightActionsItem,
+          color: token.layout?.header?.colorTextRightActionsItem,
           fontSize: '16px',
           cursor: 'pointer',
           borderRadius: token.borderRadius,
@@ -27,7 +28,8 @@ const genTopNavHeaderStyle: GenerateStyle<ProToken> = (token) => {
             paddingBlock: 6,
             borderRadius: token.borderRadius,
             '&:hover': {
-              backgroundColor: token?.layout?.header?.colorBgRightActionsItemHover,
+              backgroundColor:
+                token.layout?.header?.colorBgRightActionsItemHover,
             },
           },
         },
@@ -35,12 +37,13 @@ const genTopNavHeaderStyle: GenerateStyle<ProToken> = (token) => {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          paddingInlineStart: '16px',
-          paddingInlineEnd: '16px',
-          color: token.colorTextSecondary,
+          paddingInlineStart: token.padding,
+          paddingInlineEnd: token.padding,
+          cursor: 'pointer',
+          color: token.layout?.header?.colorTextRightActionsItem,
           '> div': {
             height: '44px',
-            color: token.colorTextSecondary,
+            color: token.layout?.header?.colorTextRightActionsItem,
             paddingInline: 8,
             paddingBlock: 8,
             cursor: 'pointer',
@@ -49,7 +52,8 @@ const genTopNavHeaderStyle: GenerateStyle<ProToken> = (token) => {
             lineHeight: '44px',
             borderRadius: token.borderRadius,
             '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.03)',
+              backgroundColor:
+                token.layout?.header?.colorBgRightActionsItemHover,
             },
           },
         },
@@ -59,7 +63,7 @@ const genTopNavHeaderStyle: GenerateStyle<ProToken> = (token) => {
 };
 
 export function useStyle(prefixCls: string) {
-  return useAntdStyle('RightContent', (token) => {
+  return useAntdStyle('ProLayoutRightContent', (token) => {
     const proToken: ProToken = {
       ...token,
       componentCls: `.${prefixCls}`,

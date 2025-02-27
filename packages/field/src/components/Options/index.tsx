@@ -1,9 +1,10 @@
-import { ConfigProvider, Space } from 'antd';
+import { ConfigProvider } from 'antd';
 import React, { useContext, useImperativeHandle } from 'react';
 import type { ProFieldFC } from '../../index';
 
 // 兼容代码-----------
-import 'antd/es/space/style';
+import { proTheme } from '@ant-design/pro-provider';
+import 'antd/lib/space/style';
 //----------------------
 
 const addArrayKeys = (doms: React.ReactNode[]) =>
@@ -16,6 +17,10 @@ const addArrayKeys = (doms: React.ReactNode[]) =>
       // eslint-disable-next-line react/no-array-index-key
       key: index,
       ...dom?.props,
+      style: {
+        // @ts-ignore
+        ...dom?.props?.style,
+      },
     });
   });
 
@@ -24,23 +29,39 @@ const addArrayKeys = (doms: React.ReactNode[]) =>
  *
  * @param
  */
-const FieldOptions: ProFieldFC = ({ text, mode: type, render, fieldProps }, ref) => {
+const FieldOptions: ProFieldFC = (
+  { text, mode: type, render, fieldProps },
+  ref,
+) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const className = getPrefixCls('pro-field-option');
+
+  const { token } = proTheme.useToken();
 
   useImperativeHandle(ref, () => ({}));
 
   if (render) {
-    const doms = render(text, { mode: type, ...fieldProps }, <></>) as unknown as React.ReactNode[];
+    const doms = render(
+      text,
+      { mode: type, ...fieldProps },
+      <></>,
+    ) as unknown as React.ReactNode[];
 
     if (!doms || doms?.length < 1 || !Array.isArray(doms)) {
       return null;
     }
 
     return (
-      <Space size={16} className={className}>
+      <div
+        style={{
+          display: 'flex',
+          gap: token.margin,
+          alignItems: 'center',
+        }}
+        className={className}
+      >
         {addArrayKeys(doms)}
-      </Space>
+      </div>
     );
   }
 
@@ -52,9 +73,16 @@ const FieldOptions: ProFieldFC = ({ text, mode: type, render, fieldProps }, ref)
   }
 
   return (
-    <Space size={16} className={className}>
+    <div
+      style={{
+        display: 'flex',
+        gap: token.margin,
+        alignItems: 'center',
+      }}
+      className={className}
+    >
       {addArrayKeys(text)}
-    </Space>
+    </div>
   );
 };
 

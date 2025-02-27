@@ -1,4 +1,4 @@
-﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-utils';
+﻿import type { GenerateStyle, ProAliasToken } from '@ant-design/pro-provider';
 import { useStyle as useAntdStyle } from '@ant-design/pro-provider';
 
 export interface LightFilterToken extends ProAliasToken {
@@ -10,14 +10,19 @@ const genLightFilterStyle: GenerateStyle<LightFilterToken> = (token) => {
     [token.componentCls]: {
       lineHeight: '30px',
       // @see https://yuque.antfin-inc.com/tech-ui/topics/523
-      '&::before': { display: 'block', height: 0, visibility: 'hidden', content: "'.'" },
+      '&::before': {
+        display: 'block',
+        height: 0,
+        visibility: 'hidden',
+        content: "'.'",
+      },
       '&-small': {
         lineHeight: token.lineHeight,
       },
       '&-container': {
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: token.marginXS,
       },
       '&-item': {
         whiteSpace: 'nowrap',
@@ -26,7 +31,10 @@ const genLightFilterStyle: GenerateStyle<LightFilterToken> = (token) => {
         },
       },
       '&-line': { minWidth: '198px' },
-      '&-line:not(:first-child)': { marginBlockStart: '16px', marginBlockEnd: 8 },
+      '&-line:not(:first-child)': {
+        marginBlockStart: '16px',
+        marginBlockEnd: 8,
+      },
       '&-collapse-icon': {
         width: token.controlHeight,
         height: token.controlHeight,
@@ -37,7 +45,7 @@ const genLightFilterStyle: GenerateStyle<LightFilterToken> = (token) => {
       },
       '&-effective': {
         [`${token.componentCls}-collapse-icon`]: {
-          backgroundColor: 'rgba(0,0,0,0.04)',
+          backgroundColor: token.colorBgTextHover,
         },
       },
     },

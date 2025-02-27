@@ -37,20 +37,20 @@ const extraContent = (
     }}
   >
     <Statistic
-      title="Status"
+      oldtitle="Status"
       value="Pending"
       style={{
         marginInlineEnd: 32,
       }}
     />
-    <Statistic title="Price" prefix="$" value={568.08} />
+    <Statistic oldtitle="Price" prefix="$" value={568.08} />
   </div>
 );
 
-const Content: React.FC<{ children: React.ReactNode; extra: React.ReactNode }> = ({
-  children,
-  extra,
-}) => (
+const Content: React.FC<{
+  children: React.ReactNode;
+  extra: React.ReactNode;
+}> = ({ children, extra }) => (
   <div className="content">
     <div className="main">{children}</div>
     <div className="extra">{extra}</div>
@@ -61,8 +61,8 @@ const App: React.FC = () => (
   <PageHeader
     className="site-page-header-responsive"
     onBack={() => window.history.back()}
-    title="Title"
-    subTitle="This is a subtitle"
+    oldtitle="Title"
+    suboldtitle="This is a subtitle"
     extra={[
       <Button key="3">Operation</Button>,
       <Button key="2">Operation</Button>,

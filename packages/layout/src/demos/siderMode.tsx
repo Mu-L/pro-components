@@ -1,24 +1,13 @@
 import {
-  CaretDownFilled,
   GithubFilled,
   InfoCircleFilled,
-  PlusCircleFilled,
   QuestionCircleFilled,
-  SearchOutlined,
 } from '@ant-design/icons';
-import ProCard from '@ant-design/pro-card';
-import type { ProSettings } from '@ant-design/pro-layout';
-import { PageContainer, ProLayout, SettingDrawer } from '@ant-design/pro-layout';
-import { css } from '@emotion/css';
-import { Dropdown, Input } from 'antd';
+import { PageContainer, ProCard, ProLayout } from '@ant-design/pro-components';
 import { useState } from 'react';
 import defaultProps from './_defaultProps';
 
 export default () => {
-  const [settings, setSetting] = useState<Partial<ProSettings> | undefined>({
-    layout: 'side',
-  });
-
   const [pathname, setPathname] = useState('/list/sub-page/sub-sub-page1');
 
   return (
@@ -67,74 +56,6 @@ export default () => {
             <GithubFilled key="GithubFilled" />,
           ];
         }}
-        menuExtraRender={(props) => {
-          if (props.collapsed) return [];
-          return (
-            <>
-              <Dropdown placement="bottom">
-                <div
-                  style={{
-                    color: 'rgba(0, 0, 0, 0.85)',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    gap: 4,
-                    alignItems: 'center',
-                    minWidth: '180px',
-                  }}
-                  className={css`
-                    font-size: 16px;
-                    margin-top: 24px;
-                    padding: 0 12px;
-                    &:hover {
-                      background-color: rgba(0, 0, 0, 0.03);
-                    }
-                  `}
-                >
-                  <span> 企业级资产中心</span>
-                  <CaretDownFilled />
-                </div>
-              </Dropdown>
-
-              <div
-                key="SearchOutlined"
-                aria-hidden
-                style={{
-                  marginBlockStart: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-              >
-                <Input
-                  style={{
-                    borderRadius: 4,
-                    marginInlineEnd: 12,
-                    backgroundColor: 'rgba(0,0,0,0.03)',
-                  }}
-                  prefix={
-                    <SearchOutlined
-                      style={{
-                        color: 'rgba(0, 0, 0, 0.15)',
-                      }}
-                    />
-                  }
-                  placeholder="搜索方案"
-                  bordered={false}
-                />
-                <PlusCircleFilled
-                  style={{
-                    color: 'var(--ant-primary-color)',
-                    fontSize: 24,
-                  }}
-                />
-              </div>
-            </>
-          );
-        }}
         menuItemRender={(item, dom) => (
           <div
             onClick={() => {
@@ -144,7 +65,6 @@ export default () => {
             {dom}
           </div>
         )}
-        {...settings}
       >
         <PageContainer>
           <ProCard
@@ -157,16 +77,6 @@ export default () => {
           </ProCard>
         </PageContainer>
       </ProLayout>
-      <SettingDrawer
-        pathname={pathname}
-        enableDarkTheme
-        getContainer={() => document.getElementById('test-pro-layout')}
-        settings={settings}
-        onSettingChange={(changeSetting) => {
-          setSetting(changeSetting);
-        }}
-        disableUrlParams={false}
-      />
     </div>
   );
 };

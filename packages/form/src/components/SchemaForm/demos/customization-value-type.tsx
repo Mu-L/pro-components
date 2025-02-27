@@ -4,15 +4,6 @@ import type { InputRef } from 'antd';
 import { Input, Space, Tag } from 'antd';
 import React, { useContext, useRef, useState } from 'react';
 
-declare module '@ant-design/pro-utils' {
-  interface ProFieldValueTypeWithFieldProps {
-    tags: Record<string, any>;
-    link: {
-      customField: string;
-    };
-  }
-}
-
 const valueEnum = {
   0: 'close',
   1: 'running',
@@ -56,8 +47,14 @@ const TagList: React.FC<{
 
   const handleInputConfirm = () => {
     let tempsTags = [...(value || [])];
-    if (inputValue && tempsTags.filter((tag) => tag.label === inputValue).length === 0) {
-      tempsTags = [...tempsTags, { key: `new-${tempsTags.length}`, label: inputValue }];
+    if (
+      inputValue &&
+      tempsTags.filter((tag) => tag.label === inputValue).length === 0
+    ) {
+      tempsTags = [
+        ...tempsTags,
+        { key: `new-${tempsTags.length}`, label: inputValue },
+      ];
     }
     onChange?.(tempsTags);
     setNewTags([]);
@@ -83,7 +80,7 @@ const TagList: React.FC<{
   );
 };
 
-const columns: ProFormColumnsType<TableListItem>[] = [
+const columns: ProFormColumnsType<TableListItem, 'link' | 'tags'>[] = [
   {
     title: '标签',
     valueType: 'group',
@@ -145,23 +142,27 @@ export default () => {
                 </>
               );
             },
-            renderFormItem: (text, props) => <TagList {...props} {...props?.fieldProps} />,
+            renderFormItem: (text, props) => (
+              <TagList {...props} {...props?.fieldProps} />
+            ),
           },
         },
       }}
     >
-      <BetaSchemaForm<TableListItem>
+      <BetaSchemaForm<TableListItem, 'link' | 'tags'>
         initialValues={{
           key: 1,
           name: `TradeCode 1`,
           status: [
             {
               value: Math.floor(Math.random() * 10),
-              label: valueEnum[Math.floor(Math.random() * 10) % 4],
+              label:
+                valueEnum[((Math.floor(Math.random() * 10) % 4) + '') as '1'],
             },
             {
               value: Math.floor(Math.random() * 10),
-              label: valueEnum[Math.floor(Math.random() * 10) % 4],
+              label:
+                valueEnum[((Math.floor(Math.random() * 10) % 4) + '') as '1'],
             },
           ],
         }}
